@@ -31,7 +31,7 @@ h1{margin:0;font-size:clamp(22px,2.4vw,30px);line-height:1.15;font-weight:750;fo
 .lede{margin:6px 0 0;color:var(--mut);max-width:72ch;font-size:14px}
 .bar{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;margin-top:16px}
 .seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:3px;flex-wrap:wrap}
-.seg button{border:0;background:none;border-radius:9px;padding:7px 14px;cursor:pointer;font-size:14px;color:var(--mut)}
+.seg button{border:0;background:none;border-radius:9px;padding:7px 14px;cursor:pointer;font-size:14px;color:var(--mut);text-align:left}
 .seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
 .seg button span{display:block;font-size:11.5px;opacity:.75;font-variation-settings:"wdth" 90}
 .toggle{font-size:13.5px;color:var(--mut);display:flex;gap:6px;align-items:center;cursor:pointer}
@@ -75,7 +75,6 @@ h1{margin:0;font-size:clamp(22px,2.4vw,30px);line-height:1.15;font-weight:750;fo
 .cmp ins{text-decoration:none;background:var(--seller-soft);color:var(--seller);padding:0 3px;border-bottom:2px solid var(--seller)}
 .cmp .claim{grid-column:1/-1;border-top:1px solid var(--line);background:var(--buyer-soft);font-size:14px}
 .cmp .claim b{color:var(--buyer)}
-.cmp .placeholder{grid-column:1/-1;color:var(--mut);font-size:14px}
 
 .evid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 @media (max-width:640px){.evid{grid-template-columns:1fr}}
@@ -89,6 +88,7 @@ h1{margin:0;font-size:clamp(22px,2.4vw,30px);line-height:1.15;font-weight:750;fo
 .notbasis{font-size:12.5px;color:var(--mut);margin-top:8px}
 
 .decide{border-top:2px solid var(--ink);padding-top:14px}
+.decide h3{margin:0 0 6px;font-size:15px}
 .decide p{margin:4px 0;font-size:14px}
 .decide .idle{color:var(--mut);font-size:14px}
 
@@ -100,6 +100,7 @@ h1{margin:0;font-size:clamp(22px,2.4vw,30px);line-height:1.15;font-weight:750;fo
 .ai{align-self:flex-start;background:var(--soft);padding:11px 13px;border-radius:4px 16px 16px 16px;max-width:97%;border:1px solid var(--line)}
 .ai .tag{font-size:12px;color:var(--mut);margin-bottom:4px}
 .ai .tag b{color:var(--ink);font-weight:650}
+.ai p{margin:8px 0 0}
 .hint{align-self:center;font-size:12.5px;color:var(--pin);text-align:center;max-width:90%}
 .conf{display:flex;flex-wrap:wrap;align-items:center;gap:2px 6px;font-size:13px;font-weight:650;margin-top:8px}
 .conf .why{flex-basis:100%}
@@ -137,6 +138,7 @@ h1{margin:0;font-size:clamp(22px,2.4vw,30px);line-height:1.15;font-weight:750;fo
 .btn.sellerb{background:var(--seller);color:#fff}
 .btn.go{background:var(--auto);color:#fff}
 .btn.stop{background:var(--ban);color:#fff}
+.btn.dark{background:var(--ink);color:#fff}
 .btn.line{background:var(--surface);border:1.5px solid var(--line)}
 .btn[disabled]{opacity:.4;cursor:default}
 .link{background:none;border:0;padding:0;color:var(--buyer);text-decoration:underline;text-underline-offset:2px;font-size:13px;cursor:pointer}
@@ -188,12 +190,13 @@ td code{font-size:12.5px;font-family:var(--sans);font-weight:650;font-variation-
 
 <header>
   <h1>Khiếu nại “hàng không đúng mô tả”: hồ sơ nằm giữa người mua và người bán</h1>
-  <p class="lede">Prototype của nhóm top1build, track T4 Thương mại điện tử. Trợ lý AI gom bằng chứng và chỉ bước tiếp theo; tiền chỉ đi khi bên mất tiền đồng ý hoặc nhân viên của sàn quyết. Toàn bộ đơn hàng, shop, người mua và chính sách là dữ liệu dựng.</p>
+  <p class="lede">Prototype của nhóm top1build, track T4 Thương mại điện tử. Trợ lý AI gom bằng chứng và chỉ bước tiếp theo; tiền chỉ đi khi bên mất tiền đồng ý hoặc nhân viên của sàn quyết. Mỗi ca ứng với một kịch bản ở spec.md §2. Toàn bộ đơn hàng, shop, người mua và chính sách là dữ liệu dựng.</p>
   <div class="bar">
-    <div class="seg" id="tabs" role="group" aria-label="Chọn ca">
-      <button data-sc="A" aria-pressed="true">Ca A: nồi chiên<span>shop đã sửa mô tả, ca khó</span></button>
-      <button data-sc="B" aria-pressed="false">Ca B: áo gửi nhầm size<span>ca bình thường</span></button>
-      <button data-sc="C" aria-pressed="false">Ca C: tin cụt và lời doạ<span>đòi khoá shop, đòi số điện thoại</span></button>
+    <div class="seg" id="tabs" role="group" aria-label="Chọn kịch bản">
+      <button data-sc="k4" aria-pressed="true">KB4: doạ kiện, nghi hàng giả<span>đắt nhất 1</span></button>
+      <button data-sc="k5" aria-pressed="false">KB5: thịt đông lạnh bị hỏng<span>đắt nhất 2</span></button>
+      <button data-sc="k9" aria-pressed="false">KB9: shop đã sửa mô tả<span>ca demo bắt buộc của track</span></button>
+      <button data-sc="k6" aria-pressed="false">KB6: áo mặc không vừa<span>ca bình thường</span></button>
     </div>
     <label class="toggle"><input type="checkbox" id="showN" checked> Hiện số chú thích</label>
   </div>
@@ -241,28 +244,28 @@ td code{font-size:12.5px;font-family:var(--sans);font-weight:650;font-variation-
     <h2>Mức tự chủ của 5 tool, giống spec.md §4</h2>
     <table>
       <tr><th>Tool</th><th>Mức</th><th>Trên màn hình</th></tr>
-      <tr><td><code>yeu_cau_bang_chung</code></td><td><span class="lvl l-auto">Tự làm</span></td><td>Dải xanh “Đã tự làm” và đồng hồ 48 giờ bên người bán. Tin đã tới nên không thu hồi; sai thì gửi đính chính.</td></tr>
-      <tr><td><code>chuyen_truong_nhom</code></td><td><span class="lvl l-auto">Tự làm</span></td><td>Dải xanh “Đã chuyển nhân viên” kèm giờ có kết quả. Nhân viên bấm “Trả về trợ lý” để hoàn tác.</td></tr>
+      <tr><td><code>yeu_cau_bang_chung</code></td><td><span class="lvl l-auto">Tự làm</span></td><td>Dải xanh “Đã tự làm” và đồng hồ đếm ngược bên người bán (48 giờ; hàng tươi sống 12 giờ). Tin đã tới nên không thu hồi; sai thì gửi đính chính.</td></tr>
+      <tr><td><code>chuyen_truong_nhom</code></td><td><span class="lvl l-auto">Tự làm</span></td><td>Dải xanh “Đã chuyển nhân viên” kèm giờ có kết quả. Lời doạ pháp lý thì chuyển ngay lượt đầu. Nhân viên bấm “Trả về trợ lý” để hoàn tác.</td></tr>
       <tr><td><code>soan_hoan_tien</code>, tách hai bước</td><td><span class="lvl l-auto">Tự làm</span>soạn<br><span class="lvl l-ask">Cần duyệt</span>hoàn</td><td>AI chỉ soạn. Tiền đi khi shop (bên mất tiền) đồng ý hoặc nhân viên duyệt, qua hộp xác nhận ghi ai mất gì.</td></tr>
       <tr><td><code>tu_choi_khieu_nai</code></td><td><span class="lvl l-ban">Cấm với AI</span></td><td>AI không có nút này. AI chỉ nói “chưa đủ căn cứ” và chuyển người.</td></tr>
-      <tr><td><code>phat_shop</code></td><td><span class="lvl l-ban">Cấm với AI</span></td><td>Không có nút. Đòi khoá shop hay nghi hàng giả thì chuyển bộ phận chuyên trách, không hứa kết quả.</td></tr>
+      <tr><td><code>phat_shop</code></td><td><span class="lvl l-ban">Cấm với AI</span></td><td>Không có nút. Nghi hàng giả thì chuyển bộ phận chuyên trách, không hứa kết quả.</td></tr>
     </table>
   </div>
   <div>
     <h2>Số chú thích nằm ở đâu</h2>
     <ul class="legend">
       <li><span class="n">1</span>G1, Luật AI 134/2025 Điều 11: nhãn “Trợ lý AI, không tự quyết hoàn tiền hay từ chối”.</li>
-      <li><span class="n">2</span>G11, PAIR Explainability: đối chiếu mô tả lúc đặt với bản shop đã sửa.</li>
+      <li><span class="n">2</span>G11, PAIR Explainability: đối chiếu mô tả lúc đặt với mô tả hiện tại.</li>
       <li><span class="n">3</span>G2: thanh độ chắc kèm lý do bằng chữ.</li>
       <li><span class="n">4</span>G10: không chắc thì hỏi đúng một câu, có sẵn lựa chọn.</li>
       <li><span class="n">5</span>Danh sách còn thiếu gì, trả lời câu “không ai nói tôi còn thiếu cái gì”.</li>
       <li><span class="n">6</span>Tự làm: xin bằng chứng shop, kèm hạn phản hồi.</li>
-      <li><span class="n">7</span>PAIR Graceful failure: chuyển người, có giờ kết quả, giữ hạn trả hàng.</li>
+      <li><span class="n">7</span>PAIR Graceful failure: dừng và chuyển người, có giờ kết quả.</li>
       <li><span class="n">8</span>Cần duyệt: hộp xác nhận ghi ai mất gì, không đảo được.</li>
-      <li><span class="n">9</span>Cấm: AI không có nút từ chối hay phạt shop.</li>
+      <li><span class="n">9</span>Cấm: AI không có nút từ chối hay phạt shop, không hứa bồi thường.</li>
       <li><span class="n">10</span>G9, G15: “AI hiểu sai? Sai chỗ nào?”.</li>
       <li><span class="n">11</span>G8: “Gặp nhân viên” có ở mọi bước.</li>
-      <li><span class="n">12</span>Hạn trả hàng và số ngày còn lại (chính sách dựng: 7 ngày từ khi nhận).</li>
+      <li><span class="n">12</span>Hạn khiếu nại còn bao lâu (dựng: 7 ngày; hàng tươi sống 24 giờ).</li>
       <li><span class="n">13</span>Không đưa số điện thoại hay địa chỉ giữa hai bên.</li>
     </ul>
   </div>
@@ -279,21 +282,28 @@ td code{font-size:12.5px;font-family:var(--sans);font-weight:650;font-variation-
 <script>
 const $ = s => document.querySelector(s);
 const N = k => `<span class="n">${k}</span>`;
-const AI_TAG = first => `<div class="tag">${first ? N(1) : ''}<b>Trợ lý AI của sàn</b>, không tự quyết hoàn tiền hay từ chối khiếu nại</div>`;
+// Tin đầu nói đủ trợ lý là gì và không làm gì (G1); các tin sau chỉ cần nhận ra là AI
+const AI_TAG = first => first
+  ? `<div class="tag">${N(1)}<b>Trợ lý AI của sàn</b>, không tự quyết hoàn tiền hay từ chối khiếu nại</div>`
+  : `<div class="tag"><b>Trợ lý AI</b></div>`;
+const STAFF = 'Nhân viên Minh của sàn (dựng)';
 let state = {}, timers = [];
 
+/* ---------- Helpers ---------- */
 const flash = el => { el.classList.remove('fresh'); void el.offsetWidth; el.classList.add('fresh'); };
 function buyer(html){ const d=document.createElement('div'); d.className='me'; d.innerHTML=html; $('#buyer').appendChild(d); }
 function ai(html){ const d=document.createElement('div'); d.className='ai'; d.innerHTML=AI_TAG(!$('#buyer .ai'))+html; $('#buyer').appendChild(d); return d; }
 function hint(text){ const d=document.createElement('div'); d.className='hint'; d.textContent=text; $('#buyer').appendChild(d); }
 function lockOpts(el, chosen){ el.querySelectorAll('.opt').forEach(b=>{ b.disabled=true; if(b===chosen) b.classList.add('sel'); }); }
 function conf(kind, label, why){ return `<div class="conf c-${kind}">${N(3)}<i aria-hidden="true"></i>Độ chắc: ${label}<span class="why">${why}</span></div>`; }
-
 function setSeller(html){ const s=$('#seller'); s.innerHTML=html; flash(s); startTimers(); }
 function setDecide(html){ const d=$('#decide'); d.innerHTML=html; flash(d); startTimers(); }
 function setCmp(html){ $('#cmp').innerHTML=html; }
+function setClaim(html){ const c=$('#cmp .claim'); if(c){ c.innerHTML=html; flash(c); } }
 function addEv(side, html, miss){ const li=document.createElement('li'); if(miss) li.className='miss'; li.innerHTML=html; $(side==='b'?'#evB':'#evS').appendChild(li); flash(li); return li; }
+function fillEv(side, html){ const li=$(side==='b'?'#evB .miss':'#evS .miss'); if(li){ li.className=''; li.innerHTML=html; flash(li); } else addEv(side, html); }
 function setRail(i){ state.rail.forEach((_,k)=>{ const li=$('#rail').children[k]; li.className = k<i ? 'done' : k===i ? 'now' : ''; }); }
+function onClick(root, sel, fn){ const el=root.querySelector(sel); el.onclick=e=>{ el.disabled=true; fn(e); }; return el; }
 
 function startTimers(){
   timers.forEach(clearInterval); timers=[];
@@ -318,18 +328,24 @@ $('#mOk').onchange=e=>{ $('#mGo').disabled=!e.target.checked; };
 $('#mCancel').onclick=closeModal;
 document.addEventListener('keydown',e=>{ if(e.key==='Escape' && $('#modal').classList.contains('show')) closeModal(); });
 
+/* ---------- Dữ liệu dựng ---------- */
 const CASES = {
-  A:{ shop:'Gia Dụng An Phú (dựng)', title:'Đơn DH-2611-0457, nồi chiên không dầu BX-60',
-      order:'<b>Đơn DH-2611-0457</b><br>Nồi chiên không dầu BX-60, 1.290.000đ<br>Đặt 03/11, nhận 08/11',
-      deadline:'15/11', left:3,
-      rail:['Người mua báo lỗi','Hỏi lại một câu','Xin bằng chứng hai bên','Shop phản hồi','Nhân viên quyết định'] },
-  B:{ shop:'Thời Trang Mộc (dựng)', title:'Đơn DH-2611-0912, áo sơ mi linen',
-      order:'<b>Đơn DH-2611-0912</b><br>Áo sơ mi linen size L, 249.000đ<br>Đặt 07/11, nhận 10/11',
-      deadline:'17/11', left:5,
-      rail:['Người mua báo lỗi','AI soạn yêu cầu','Người mua gửi','Shop đồng ý','Hoàn tiền'] },
-  C:{ shop:'chưa xác định', title:'Chưa rõ đơn nào',
-      order:'Chưa chọn đơn nào', deadline:null,
-      rail:['Người mua báo lỗi','Hỏi đơn nào','Hỏi sai ở đâu','Xin bằng chứng hai bên','Shop phản hồi'] }
+  k4:{ shop:'Âm Thanh Số (dựng)', title:'Đơn DH-2611-0731, tai nghe bluetooth K9', price:'390.000đ',
+       order:'<b>Đơn DH-2611-0731</b><br>Tai nghe bluetooth K9, 390.000đ<br>Đặt 05/11, nhận 09/11',
+       deadline:'16/11', dl:'hạn khiếu nại <b>16/11</b>, còn 4 ngày',
+       rail:['Người mua báo lỗi','Dừng tự động, chuyển người','Nhân viên liên hệ','Xét bằng chứng hai bên','Quyết định'] },
+  k5:{ shop:'Bếp Nhà Quê (dựng)', title:'Đơn DH-2611-1103, thịt bò Úc đông lạnh, hàng tươi sống', price:'389.000đ',
+       order:'<b>Đơn DH-2611-1103</b><br>Thịt bò Úc đông lạnh 1kg, 389.000đ<br>Đặt 11/11, nhận hôm nay 10:00',
+       deadline:'13/11 10:00', dl:'hàng tươi sống: hạn khiếu nại <b>13/11 10:00</b>, còn 19 giờ',
+       rail:['Người mua báo lỗi','Chuyển sang hoàn tiền không trả hàng','Người mua gửi ảnh, video','Shop phản hồi trong 12 giờ','Hoàn tiền hoặc nhân viên quyết'] },
+  k9:{ shop:'Gia Dụng An Phú (dựng)', title:'Đơn DH-2611-0457, nồi chiên không dầu BX-60', price:'1.290.000đ',
+       order:'<b>Đơn DH-2611-0457</b><br>Nồi chiên không dầu BX-60, 1.290.000đ<br>Đặt 03/11, nhận 08/11',
+       deadline:'15/11', dl:'hạn khiếu nại <b>15/11</b>, còn 3 ngày',
+       rail:['Người mua báo lỗi','Hỏi lại một câu','Xin bằng chứng hai bên','Shop phản hồi','Nhân viên quyết định'] },
+  k6:{ shop:'Thời Trang Mộc (dựng)', title:'Đơn DH-2611-0912, áo sơ mi linen', price:'249.000đ',
+       order:'<b>Đơn DH-2611-0912</b><br>Áo sơ mi linen size L, 249.000đ<br>Đặt 07/11, nhận 10/11',
+       deadline:'17/11', dl:'hạn khiếu nại <b>17/11</b>, còn 5 ngày',
+       rail:['Người mua báo lỗi','Hỏi lại một câu','AI soạn yêu cầu','Shop phản hồi','Hoàn tiền'] }
 };
 
 function start(sc){
@@ -341,13 +357,185 @@ function start(sc){
   $('#seller').innerHTML='<p class="empty">Chưa có khiếu nại nào cho shop.</p>';
   $('#decide').innerHTML='<p class="idle">Chưa cần quyết định. Hồ sơ đang ở luồng trợ lý.</p>';
   $('#order').innerHTML=c.order; $('#shopName').textContent=c.shop; $('#fileTitle').textContent=c.title;
-  $('#deadline').innerHTML = c.deadline ? `${N(12)}Hạn trả hàng <b>${c.deadline}</b>, còn ${c.left} ngày` : `${N(12)}Chọn đơn để xem hạn trả hàng`;
-  $('#rail').innerHTML = c.rail.map(s=>`<li>${s}</li>`).join('');
-  ({A:startA,B:startB,C:startC})[sc]();
+  $('#deadline').innerHTML=`${N(12)}${c.dl[0].toUpperCase()+c.dl.slice(1)}`;
+  $('#rail').innerHTML=c.rail.map(s=>`<li>${s}</li>`).join('');
+  ({k4:startK4,k5:startK5,k9:startK9,k6:startK6})[sc]();
 }
 
-/* ================= Ca A: shop đã sửa mô tả sau khi bán ================= */
-function startA(){
+/* ---------- Dùng chung: shop đồng ý, nhân viên quyết ---------- */
+function sellerAgree(sc, {noReturn}={}){
+  const c=CASES[sc];
+  confirmBox({
+    title:`Đồng ý hoàn ${c.price} cho người mua?`,
+    body:`<p class="loss"><b>Bạn mất ${c.price}</b>${noReturn ? ' và không nhận lại hàng (hàng tươi sống, không gửi trả).' : ', nhận lại hàng khi người mua gửi trả.'}</p><p>Bạn là bên mất tiền, nên bạn duyệt được ngay mà không cần chờ nhân viên.</p><p><b>Không đảo được</b> sau khi bạn đồng ý.</p>`,
+    check:'Tôi đồng ý hoàn tiền cho đơn này', go:'Đồng ý hoàn tiền', cls:'go',
+    onGo:()=>{
+      setRail(state.rail.length);
+      setSeller(`<h3>Bạn đã đồng ý hoàn ${c.price}</h3><p class="priv">Người mua đã được báo. Không trừ điểm uy tín.</p>`);
+      setDecide(`<p><b>Shop đã đồng ý hoàn tiền.</b> Không cần nhân viên duyệt vì bên mất tiền đã đồng ý.</p>`);
+      ai(noReturn
+        ? `<b>Shop đã đồng ý hoàn ${c.price}</b> cho bạn. Bạn không cần gửi trả hàng; tiền về ví trong 24 giờ.`
+        : `<b>Shop đã đồng ý hoàn ${c.price}</b> cho bạn. Bạn gửi trả hàng trước ${c.deadline}; tiền về ví sau khi shop nhận lại hàng.<div class="btns"><button class="btn buyerb">Xem cách gửi trả hàng</button></div>`);
+    }});
+}
+
+/* Ô quyết định của nhân viên: hai nút tiền chỉ có ở đây, mỗi nút qua hộp xác nhận ghi ai mất gì */
+function staffDecide(o){
+  const c=CASES[state.sc];
+  setDecide(`<h3>${N(8)}Quyết định của nhân viên</h3>
+    <p>${o.why} Trợ lý không đề xuất hoàn hay từ chối.</p>
+    <p class="priv">Hạn trả lời người mua còn <b class="cd" data-sec="${o.sec||86400}"></b></p>
+    <div class="btns">
+      <button class="btn go" id="stRefund">Duyệt hoàn tiền</button>
+      <button class="btn stop" id="stReject">Từ chối khiếu nại</button>
+      <button class="btn line" id="stBack">Trả về trợ lý</button>
+    </div>
+    <p class="priv" style="margin-top:8px">${N(9)}Hai nút quyết định chỉ có ở màn hình nhân viên. Trợ lý AI không có nút từ chối hay phạt shop.</p>`);
+  $('#stRefund').onclick=()=>confirmBox({
+    title:`Duyệt hoàn ${c.price} cho người mua?`,
+    body:`<p class="loss"><b>Shop mất ${c.price}</b>${o.noReturn ? ' và không nhận lại hàng.' : ', nhận lại hàng khi người mua gửi trả.'}</p><p><b>Không đảo được</b> sau khi tiền về ví người mua.</p><p class="priv">Căn cứ: ${o.basis}</p>`,
+    check:'Tôi đã xem bằng chứng của cả hai bên', go:'Duyệt hoàn tiền', cls:'go', onGo:()=>staffDone('refund',o)});
+  $('#stReject').onclick=()=>confirmBox({
+    title:'Từ chối khiếu nại, tiền về shop?',
+    body:`<p class="loss"><b>Người mua mất ${c.price}</b>${o.noReturn ? '.' : ' và giữ sản phẩm họ cho là sai mô tả.'}</p><p><b>Khó đảo</b> sau khi tiền về shop.</p>`,
+    check:'Tôi đã xem bằng chứng của cả hai bên', go:'Từ chối khiếu nại', cls:'stop', onGo:()=>staffDone('reject',o)});
+  $('#stBack').onclick=()=>{ state.transferred=false; setDecide('<p class="idle">Đã trả về trợ lý để xin thêm một bằng chứng.</p>'); o.onBack(); };
+}
+function staffDone(kind,o){
+  const c=CASES[state.sc];
+  setRail(state.rail.length);
+  if(kind==='refund'){
+    setDecide(`<p><b>Đã duyệt hoàn tiền.</b> ${STAFF} quyết định; người mua và shop đã được báo.</p>`);
+    ai(`<b>${STAFF} đã quyết định hoàn ${c.price} cho bạn.</b> Lý do: ${o.refundWhy}${o.noReturn ? ' Bạn không cần gửi trả hàng.' : '<div class="btns"><button class="btn buyerb">Xem cách gửi trả hàng</button></div>'}`);
+    setSeller(`<h3>Kết quả ${c.title.split(',')[0].toLowerCase()}</h3><p>Sàn quyết định <b>hoàn tiền cho người mua</b>. Lý do: ${o.refundWhy}</p><p class="priv">Không trừ điểm uy tín. Đây là khiếu nại về đơn hàng, không phải xử phạt.</p><div class="btns"><button class="btn line">Khiếu nại kết quả</button></div>`);
+  } else {
+    setDecide(`<p><b>Đã từ chối khiếu nại.</b> ${STAFF} quyết định; người mua và shop đã được báo.</p>`);
+    ai(`<b>${STAFF} đã xem cả hai phía và quyết định chưa đủ căn cứ để hoàn tiền.</b> ${o.rejectWhy}<p>Không đồng ý? Bạn khiếu nại lại kết quả trong 3 ngày; một nhân viên khác sẽ xem.</p><div class="btns"><button class="btn line">Khiếu nại lại kết quả</button></div>`);
+    setSeller(`<h3>Kết quả ${c.title.split(',')[0].toLowerCase()}</h3><p>Sàn <b>từ chối khiếu nại</b>, tiền về shop.</p>`);
+  }
+}
+
+/* ================= KB4: doạ kiện, nghi hàng giả. Đắt nhất 1 =================
+   §6 tiêu chí 1: có lời doạ pháp lý hoặc truyền thông thì dừng tự động và chuyển người ngay trong một lượt. */
+function startK4(){
+  setCmp(`<div class="then"><span class="lbl">Lúc đặt, 05/11. Căn cứ để xét</span><q>Tai nghe bluetooth K9, hàng chính hãng, có tem chống giả của hãng</q></div>
+    <div class="now"><span class="lbl">Hiện tại</span><p class="same">Không đổi so với lúc đặt</p></div>
+    <div class="claim"><b>Người mua báo:</b> hàng giả, không phải chính hãng</div>`);
+  addEv('b','Ảnh tem và hộp sản phẩm', true);
+  addEv('s','Chứng từ nguồn gốc', true);
+  buyer('Shop lừa đảo, hàng fake 100%, tao sẽ kiện lên công an và đăng bóc phốt khắp mạng xã hội');
+  state.transferred=true;
+  setRail(2);
+  const m = ai(`Mình hiểu bạn đang rất bức xúc. Việc này cần người của sàn xem, nên mình <b>dừng ở đây và chuyển ngay</b>.
+    ${conf('no','chưa đủ căn cứ','Nghi hàng giả và tranh chấp pháp lý không phải việc trợ lý tự xét.')}
+    <div class="act auto">${N(7)}<span class="lvl">Đã tự làm</span>Đã chuyển hồ sơ cho nhân viên xử lý khiếu nại, ưu tiên cao. Nhân viên trả lời bạn trong 2 giờ ngay tại đây; toàn bộ tin nhắn đã gửi kèm, bạn không phải kể lại.</div>
+    <div class="act ban">${N(9)}<span class="lvl">Trợ lý không làm</span>Trợ lý không kết luận shop có lừa đảo hay không, và không hứa hoàn tiền, bồi thường hay xử phạt shop. Nghi hàng giả do bộ phận chuyên trách xem.</div>
+    <p>Trong lúc chờ, nếu tiện, bạn gửi ảnh tem và hộp sản phẩm để nhân viên xem nhanh hơn. Không bắt buộc.</p>
+    <div class="btns"><button class="btn buyerb" id="k4Up">Gửi ảnh tem và hộp</button><button class="btn line" id="k4Phone">Cho mình số điện thoại của shop</button></div>`);
+  onClick(m,'#k4Up',()=>{ buyer('📷 Ảnh tem và hộp'); fillEv('b','Ảnh tem và hộp: tem không quét được mã<small>gửi 12/11</small>');
+    ai('Đã nhận ảnh và gắn vào hồ sơ cho nhân viên.'); });
+  onClick(m,'#k4Phone',()=>{ buyer('Cho mình số điện thoại của shop');
+    ai(`${N(13)}Mình không chia sẻ số điện thoại hay địa chỉ giữa người mua và người bán. Bạn nhắn shop ở mục Chat trong đơn hàng; mọi tin ở đó được lưu và dùng làm bằng chứng cho bạn.`); });
+  setSeller(`<h3>Khiếu nại đơn DH-2611-0731</h3>
+    <p class="priv">${N(13)}Sàn không hiện số điện thoại và địa chỉ của người mua.</p>
+    <p>Người mua báo nghi hàng không chính hãng. Hồ sơ đang ở chỗ nhân viên của sàn.</p>
+    <p class="priv">Lời lẽ đe doạ trong tin nhắn không phải căn cứ nên không hiện ở đây. Chưa có kết luận, chưa có xử phạt.</p>`);
+  setDecide(`<h3>Ưu tiên cao: đe doạ pháp lý và truyền thông, nghi hàng giả</h3>
+    <p>Trợ lý dừng luồng tự động ngay lượt đầu và chuyển. Lời doạ đã ghi nhận nhưng không dùng làm căn cứ.</p>
+    <p class="priv">Hạn trả lời người mua còn <b class="cd" data-sec="7200"></b></p>
+    <div class="btns"><button class="btn dark" id="k4Fake">Chuyển bộ phận kiểm tra hàng giả</button><button class="btn line" id="k4Back">Trả về trợ lý</button></div>
+    <p class="priv" style="margin-top:8px">${N(9)}Xử phạt shop chỉ có trong công cụ của bộ phận kiểm tra hàng giả. Trợ lý AI không có nút phạt.</p>`);
+  $('#k4Fake').onclick=()=>{
+    setRail(3);
+    setDecide(`<h3>Đã chuyển bộ phận kiểm tra hàng giả</h3><p>Kết quả trong 3 ngày làm việc. Yêu cầu trả hàng của người mua chạy song song.</p>`);
+    ai(`<b>${STAFF}:</b> mình đã xem hồ sơ và chuyển cho bộ phận kiểm tra hàng giả; kết quả trong 3 ngày làm việc. Yêu cầu trả hàng của bạn vẫn chạy song song, hạn khiếu nại được giữ.`);
+    setSeller(`<h3>Khiếu nại đơn DH-2611-0731</h3>
+      <p class="priv">${N(13)}Sàn không hiện số điện thoại và địa chỉ của người mua.</p>
+      <p>Sàn đang kiểm tra nghi vấn hàng không chính hãng. <b>Chưa có kết luận, chưa có xử phạt.</b></p>
+      <div class="clock">${N(6)}<b class="cd" data-sec="172800"></b><span>để gửi chứng từ nguồn gốc</span></div>
+      <p>Gửi hoá đơn nhập hàng hoặc giấy uỷ quyền phân phối.</p>
+      <div class="btns"><button class="btn sellerb" id="k4Doc">Gửi chứng từ nguồn gốc</button></div>`);
+    onClick($('#seller'),'#k4Doc',()=>{ fillEv('s','Hoá đơn nhập hàng từ nhà phân phối K9<small>gửi 12/11</small>');
+      setSeller(`<h3>Khiếu nại đơn DH-2611-0731</h3>
+        <p class="priv">${N(13)}Sàn không hiện số điện thoại và địa chỉ của người mua.</p>
+        <p><b>Bạn đã gửi chứng từ:</b> hoá đơn nhập hàng từ nhà phân phối K9.</p>
+        <p class="priv">Bộ phận kiểm tra hàng giả đang xem. Chưa có kết luận, chưa có xử phạt.</p>`); });
+  };
+  $('#k4Back').onclick=()=>{ state.transferred=false; setRail(1);
+    setDecide('<p class="idle">Nhân viên đã trả hồ sơ về luồng thường.</p>');
+    ai('Nhân viên đã xem và trả hồ sơ về luồng thường. Mình gửi mẫu xin bằng chứng cho bạn và cho shop ngay bây giờ.'); };
+}
+
+/* ================= KB5: thịt đông lạnh bị hỏng. Đắt nhất 2 =================
+   §6 tiêu chí 2: hàng tươi sống thì không hướng dẫn gửi trả; chuyển sang hoàn tiền không trả hàng. */
+function startK5(){
+  setCmp(`<div class="then"><span class="lbl">Lúc đặt, 11/11. Căn cứ để xét</span><q>Thịt bò Úc đông lạnh 1kg, giao lạnh, còn đông đá khi nhận</q></div>
+    <div class="now"><span class="lbl">Hiện tại</span><p class="same">Không đổi so với lúc đặt</p></div>
+    <div class="claim"><b>Người mua báo:</b> rã đông, có mùi khi nhận</div>`);
+  addEv('b','Ảnh hoặc video thịt và bao bì', true);
+  addEv('s','Chưa phản hồi', true);
+  buyer('Sản phẩm là thịt bò đông lạnh giao đến nơi bị thiu ủng bốc mùi hết rồi');
+  setRail(1);
+  const m = ai(`Đơn này là <b>hàng tươi sống</b>, nên bạn <b>không cần gửi trả</b>: gửi thịt hỏng qua bưu tá vừa mất vệ sinh vừa không giúp gì cho ai. Mình chuyển sang yêu cầu <b>hoàn tiền không trả hàng</b>.
+    ${conf('lo','thấp','Chưa có ảnh hiện trạng, nên chưa biết hàng hỏng lúc giao hay sau khi nhận.')}
+    <p>${N(5)}Hồ sơ của bạn:</p>
+    <ul class="need">
+      <li>Đơn hàng tươi sống, nhận hôm nay 10:00, còn trong hạn 24 giờ</li>
+      <li class="todo">Còn thiếu đúng một thứ: ảnh hoặc video thịt và bao bì, thấy rõ nhãn đơn hàng</li>
+    </ul>
+    <div class="act auto">${N(6)}<span class="lvl">Đã tự làm</span>Đã báo shop. Với hàng tươi sống, shop có <b>12 giờ</b> để phản hồi, đến 13/11 03:00.</div>
+    <div class="btns"><button class="btn buyerb" id="k5Up">Tải ảnh và video lên</button></div>
+    <p>${N(10)}<button class="link" id="k5Fix">AI hiểu sai? Sai chỗ nào?</button></p>`);
+  m.querySelector('#k5Fix').onclick=()=>fixFlow();
+  onClick(m,'#k5Up',()=>K5b());
+  sellerK5('notice');
+}
+function sellerK5(stage){
+  const head=`<h3>Khiếu nại đơn DH-2611-1103</h3><p class="priv">${N(13)}Sàn không hiện số điện thoại và địa chỉ của người mua.</p>
+    <p>Hàng tươi sống: <b>không tạo đơn gửi trả</b>, người mua không gửi lại hàng.</p>`;
+  if(stage==='notice'){
+    setSeller(head+`<p>Người mua báo thịt rã đông, có mùi khi nhận. Đang chờ người mua gửi ảnh.</p>
+      <div class="clock">${N(6)}<b class="cd" data-sec="43200"></b><span>để phản hồi, rút ngắn vì hàng tươi sống</span></div>`);
+  } else {
+    setSeller(head+`<p>Yêu cầu: <b>hoàn ${CASES.k5.price}, không trả hàng</b>.</p>
+      <p class="sq">Video lúc mở hộp 10:20: túi đá đã tan, thịt mềm, nhãn đơn DH-2611-1103</p>
+      <div class="clock">${N(6)}<b class="cd" data-sec="43200"></b><span>để phản hồi</span></div>
+      <div class="btns"><button class="btn sellerb" id="k5Agree">${N(8)}Đồng ý hoàn tiền</button><button class="btn line" id="k5Dispute">Phản đối, gửi bằng chứng</button></div>`);
+    $('#k5Agree').onclick=()=>sellerAgree('k5',{noReturn:true});
+    onClick($('#seller'),'#k5Dispute',()=>K5dispute());
+  }
+}
+function K5b(){
+  buyer('📷 Ảnh và video lúc mở hộp');
+  fillEv('b','Video mở hộp 10:20: túi đá đã tan, thịt mềm, thấy nhãn đơn<small>gửi 12/11</small>');
+  setRail(3);
+  const m = ai(`Đã nhận. Video quay lúc 10:20, 20 phút sau khi nhận, thấy rõ nhãn đơn và túi đá đã tan.
+    ${conf('hi','cao','Video có giờ quay và nhãn đơn, khớp với lời bạn báo. Shop chưa phản hồi.')}
+    <p class="q">Mình đã soạn sẵn yêu cầu:</p>
+    <ul class="need"><li>Hoàn tiền không trả hàng: ${CASES.k5.price}</li><li>Kèm video mở hộp</li></ul>
+    <div class="act ask"><span class="lvl">Soạn: tự làm. Hoàn: cần duyệt</span>Bạn bấm gửi. Tiền chỉ hoàn khi shop đồng ý, hoặc nhân viên duyệt nếu shop phản đối hoặc hết 12 giờ mà shop chưa phản hồi.</div>
+    <p>Chụp xong bạn có thể bỏ thịt đi vì vệ sinh; video đã đủ làm bằng chứng.</p>
+    <div class="btns"><button class="btn buyerb" id="k5Send">Gửi yêu cầu hoàn tiền</button></div>`);
+  onClick(m,'#k5Send',()=>{ ai('Đã gửi yêu cầu. Shop có 12 giờ để đồng ý hoặc phản đối; có kết quả mình báo ở đây.');
+    sellerK5('request'); hint('Bước tiếp theo ở cột Người bán: bấm “Đồng ý hoàn tiền” hoặc “Phản đối, gửi bằng chứng”.'); });
+}
+function K5dispute(){
+  fillEv('s','Ảnh đóng gói lúc giao 06:40: thùng xốp, 2 túi đá khô<small>gửi 12/11</small>');
+  setSeller(`<h3>Bạn đã phản đối và gửi bằng chứng</h3><p class="priv">Hồ sơ đang ở chỗ nhân viên. Chưa có quyết định, chưa trừ tiền. Có kết quả trước 12/11 21:00.</p>`);
+  state.transferred=true;
+  ai(`Shop phản đối và gửi ảnh đóng gói lúc giao: thùng xốp và 2 túi đá khô.
+    ${conf('no','chưa đủ căn cứ','Hai bên có bằng chứng khác nhau về lúc giao và lúc nhận.')}
+    <div class="act auto">${N(7)}<span class="lvl">Đã tự làm</span>Mình đã chuyển nhân viên. Hàng tươi sống nên được xét trong 6 giờ, trước 12/11 21:00. Bạn không cần giữ lại hàng.</div>`);
+  staffDecide({ sec:21600, noReturn:true,
+    why:'Hai bên có bằng chứng mâu thuẫn: video mở hộp cho thấy túi đá đã tan; shop có ảnh đóng gói đủ đá lúc 06:40.',
+    basis:'mô tả lúc đặt hứa “còn đông đá khi nhận”; video mở hộp 20 phút sau khi nhận cho thấy đã rã đông.',
+    refundWhy:'mô tả hứa hàng còn đông đá khi nhận, và video mở hộp 20 phút sau khi nhận cho thấy đã rã đông.',
+    rejectWhy:'Ảnh đóng gói cho thấy hàng đủ đá khi giao.',
+    onBack:()=>ai('Nhân viên cần thêm một thông tin: ảnh nhãn vận chuyển ghi giờ giao. Bạn gửi thêm một ảnh là đủ.') });
+}
+
+/* ================= KB9: shop đã sửa mô tả sau khi bán. Ca demo bắt buộc của track ================= */
+function startK9(){
   setRail(1);
   setCmp(`<div class="then"><span class="lbl">Lúc đặt, 03/11. Căn cứ để xét</span><q>Nồi chiên không dầu BX-60, dung tích 6 lít</q></div>
     <div class="now"><span class="lbl">Hiện tại, shop sửa 09/11 sau đơn này. Chỉ tham khảo</span><q>Dung tích nồi 6 lít, <ins>giỏ chiên 5 lít</ins></q></div>
@@ -364,15 +552,14 @@ function startA(){
       <button class="opt" data-a="ngoai">Cả lòng nồi ngoài</button>
       <button class="opt" data-a="kchac">Mình không chắc</button>
     </div>`);
-  m.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{ lockOpts(m,b); A1(b.dataset.a, b.textContent); });
+  m.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{ lockOpts(m,b); K9a(b.dataset.a, b.textContent); });
 }
-
-function A1(ans, label){
+function K9a(ans, label){
   buyer(label);
   state.part = ans==='ngoai' ? 'lòng nồi ngoài' : 'giỏ chiên';
   setRail(2);
-  $('#cmp .claim').innerHTML=`<b>Người mua báo:</b> đo ${state.part} được 5 lít`;
-  const m = ai(`${N(5)}Hồ sơ của bạn:
+  setClaim(`<b>Người mua báo:</b> đo ${state.part} được 5 lít`);
+  const m = ai(`<p style="margin:0">${N(5)}Hồ sơ của bạn:</p>
     <ul class="need">
       <li>Ảnh sản phẩm bạn nhận</li>
       <li>Mô tả lúc đặt, sàn tự lấy</li>
@@ -380,27 +567,12 @@ function A1(ans, label){
     </ul>
     <div class="act auto">${N(6)}<span class="lvl">Đã tự làm</span>Đã gửi mẫu xin bằng chứng cho shop. Shop có 48 giờ để phản hồi, đến 14/11 15:00. Bạn không cần nhắn shop.</div>
     <div class="btns"><button class="btn buyerb" id="upA">Tải ảnh đo lên</button></div>
-    <p style="margin:8px 0 0">${N(10)}<button class="link" id="fixA">AI hiểu sai? Sai chỗ nào?</button></p>`);
-  m.querySelector('#upA').onclick=e=>{ e.target.disabled=true; A2(); };
+    <p>${N(10)}<button class="link" id="fixA">AI hiểu sai? Sai chỗ nào?</button></p>`);
+  onClick(m,'#upA',()=>K9b());
   m.querySelector('#fixA').onclick=()=>fixFlow();
-  sellerA('wait');
+  sellerK9('wait');
 }
-
-function fixFlow(){
-  const m = ai(`${N(10)}Sai ở đâu? Mình sửa hồ sơ ngay.
-    <div class="opts">
-      <button class="opt" data-v="don">Mình chọn nhầm đơn</button>
-      <button class="opt" data-v="part">Mình đo phần khác, không phải phần trợ lý ghi</button>
-      <button class="opt" data-v="khac">Không phải dung tích, mà là lỗi khác</button>
-    </div>`);
-  m.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{ lockOpts(m,b); buyer(b.textContent);
-    if(b.dataset.v==='part'){ state.part = state.part==='giỏ chiên' ? 'lòng nồi ngoài' : 'giỏ chiên';
-      const c=$('#cmp .claim'); if(c){ c.innerHTML=`<b>Người mua báo (đã đính chính):</b> đo ${state.part} được 5 lít`; flash(c);} }
-    ai(`Đã sửa hồ sơ${b.dataset.v==='part' ? `: bạn đo <b>${state.part}</b>` : ''}. Shop và nhân viên thấy bản đã sửa, có ghi “người mua đã đính chính”. Tin xin bằng chứng đã tới shop nên không thu hồi được; mình đã gửi thêm tin đính chính.`);
-  });
-}
-
-function sellerA(stage){
+function sellerK9(stage){
   const head = `<h3>Khiếu nại đơn DH-2611-0457</h3>
     <p class="priv">${N(13)}Người mua L***n. Sàn không hiện số điện thoại và địa chỉ của người mua.</p>
     <p>Khiếu nại được xét theo mô tả <b>lúc khách đặt</b>:</p>
@@ -411,195 +583,110 @@ function sellerA(stage){
       <p>Gửi thông số hoặc ảnh tem nhà sản xuất cho thấy “6 lít” là của phần nào. Hết hạn mà chưa phản hồi thì hồ sơ chuyển nhân viên; <b>sàn không tự động hoàn tiền</b>.</p>
       <div class="btns"><button class="btn sellerb" id="sReply">Gửi bằng chứng phản hồi</button><button class="btn line" id="sAgree">Đồng ý trả hàng hoàn tiền</button></div>`);
     $('#sReply').disabled = !state.uploaded;
-    $('#sReply').onclick=()=>A3();
-    $('#sAgree').onclick=()=>sellerAgree('A');
+    $('#sReply').onclick=()=>K9c();
+    $('#sAgree').onclick=()=>sellerAgree('k9');
   } else {
     setSeller(head + `<p><b>Bạn đã phản hồi.</b> Ảnh tem: nồi 6L, giỏ chiên 5L.</p>
       <p class="priv">Hồ sơ đang ở chỗ nhân viên của sàn. Chưa có quyết định, chưa trừ tiền. Có kết quả trước 13/11 15:00.</p>`);
   }
 }
-
-function A2(){
+function K9b(){
   state.uploaded=true;
   buyer('📷 Ảnh đo dung tích');
-  const miss=$('#evB .miss'); miss.className=''; miss.innerHTML=`Ảnh đổ nước đo ${state.part}: 5 lít<small>gửi 12/11</small>`; flash(miss);
-  ai(`Đã nhận ảnh. Hồ sơ của bạn đủ rồi; đang chờ shop phản hồi, hạn 14/11 15:00. Có kết quả mình báo ở đây. Hạn trả hàng của bạn được giữ trong lúc chờ.`);
-  sellerA('wait');
+  fillEv('b',`Ảnh đổ nước đo ${state.part}: 5 lít<small>gửi 12/11</small>`);
+  ai(`Đã nhận ảnh. Hồ sơ của bạn đủ rồi; đang chờ shop phản hồi, hạn 14/11 15:00. Có kết quả mình báo ở đây. Hạn khiếu nại của bạn được giữ trong lúc chờ.`);
+  sellerK9('wait');
   hint('Bước tiếp theo ở cột Người bán: bấm “Gửi bằng chứng phản hồi”.');
 }
-
-function A3(){
-  sellerA('replied');
+function K9c(){
+  sellerK9('replied');
   setRail(4);
-  const s=$('#evS .miss'); s.className=''; s.innerHTML='Ảnh tem nhà sản xuất: nồi 6L, giỏ chiên 5L<small>gửi 12/11</small>'; flash(s);
+  fillEv('s','Ảnh tem nhà sản xuất: nồi 6L, giỏ chiên 5L<small>gửi 12/11</small>');
   state.transferred=true;
   ai(`Shop đã phản hồi bằng ảnh tem nhà sản xuất: <b>nồi 6L, giỏ chiên 5L</b>.
     ${conf('no','chưa đủ căn cứ','Hai bên hiểu “6 lít” khác nhau, và mô tả lúc bạn đặt không ghi rõ.')}
-    <div class="act auto">${N(7)}<span class="lvl">Đã tự làm</span>Mình đã chuyển hồ sơ cho nhân viên xử lý khiếu nại. Bạn có kết quả trước 13/11 15:00 và không phải kể lại từ đầu. Hạn trả hàng được giữ đến khi có kết quả.</div>
-    <div class="act ban">${N(9)}<span class="lvl">Không phải việc của trợ lý</span>Hoàn tiền hay từ chối ở ca này đều làm một bên mất tiền, nên người của sàn quyết.</div>`);
-  decideA();
+    <div class="act auto">${N(7)}<span class="lvl">Đã tự làm</span>Mình đã chuyển hồ sơ cho nhân viên xử lý khiếu nại. Bạn có kết quả trước 13/11 15:00 và không phải kể lại từ đầu. Hạn khiếu nại được giữ đến khi có kết quả.</div>
+    <div class="act ban">${N(9)}<span class="lvl">Trợ lý không làm</span>Hoàn tiền hay từ chối ở ca này đều làm một bên mất tiền, nên người của sàn quyết.</div>`);
+  staffDecide({
+    why:'Trợ lý chuyển hồ sơ vì độ chắc dưới ngưỡng, mô tả bị sửa sau khi bán, và bằng chứng hai bên mâu thuẫn.',
+    basis:'mô tả lúc đặt ghi “6 lít” mà không nói là của giỏ chiên; người mua có ảnh đo.',
+    refundWhy:'mô tả lúc bạn đặt ghi “6 lít” mà không nói là của giỏ chiên.',
+    rejectWhy:'Tem nhà sản xuất cho thấy giỏ chiên 5 lít đúng thông số.',
+    onBack:()=>{ setRail(2); addEv('b','Ảnh thấy mã model BX-60', true);
+      ai(`Nhân viên cần thêm một thông tin trước khi quyết: ảnh đo ${state.part} có thấy mã model BX-60 trên sản phẩm không? Bạn gửi thêm một ảnh là đủ.`); } });
 }
 
-function decideA(){
-  setDecide(`<h3 style="margin:0 0 6px;font-size:15px">${N(8)}Quyết định của nhân viên</h3>
-    <p>Trợ lý chuyển hồ sơ vì độ chắc dưới ngưỡng, mô tả bị sửa sau khi bán, và bằng chứng hai bên mâu thuẫn. Trợ lý không đề xuất hoàn hay từ chối.</p>
-    <p class="priv">Hạn trả lời người mua còn <b class="cd" data-sec="86400"></b></p>
-    <div class="btns">
-      <button class="btn go" id="stRefund">Duyệt hoàn tiền</button>
-      <button class="btn stop" id="stReject">Từ chối khiếu nại</button>
-      <button class="btn line" id="stBack">Trả về trợ lý</button>
-    </div>
-    <p class="priv" style="margin-top:8px">${N(9)}Hai nút quyết định chỉ có ở màn hình nhân viên. Trợ lý AI không có nút từ chối hay phạt shop.</p>`);
-  $('#stRefund').onclick=()=>confirmBox({
-    title:'Duyệt hoàn 1.290.000đ cho người mua?',
-    body:`<p class="loss"><b>Shop mất 1.290.000đ</b>, nhận lại hàng khi người mua gửi trả.</p><p><b>Không đảo được</b> sau khi tiền về ví người mua.</p><p class="priv">Căn cứ: mô tả lúc đặt ghi “6 lít” mà không nói là của giỏ chiên; người mua có ảnh đo.</p>`,
-    check:'Tôi đã xem bằng chứng của cả hai bên', go:'Duyệt hoàn tiền', cls:'go', onGo:()=>doneA('refund')});
-  $('#stReject').onclick=()=>confirmBox({
-    title:'Từ chối khiếu nại, tiền về shop?',
-    body:`<p class="loss"><b>Người mua mất 1.290.000đ</b> và giữ sản phẩm họ cho là sai mô tả.</p><p><b>Khó đảo</b> sau khi tiền về shop.</p>`,
-    check:'Tôi đã xem bằng chứng của cả hai bên', go:'Từ chối khiếu nại', cls:'stop', onGo:()=>doneA('reject')});
-  $('#stBack').onclick=()=>{
-    state.transferred=false; setRail(2);
-    setDecide('<p class="idle">Đã trả về trợ lý để xin thêm một bằng chứng.</p>');
-    ai(`Nhân viên cần thêm một thông tin trước khi quyết: ảnh đo ${state.part} có thấy mã model BX-60 trên sản phẩm không? Bạn gửi thêm một ảnh là đủ.`);
-    addEv('b','Ảnh thấy mã model BX-60', true);
-  };
-}
-
-function doneA(kind){
-  setRail(5);
-  const who='Nhân viên Minh của sàn (dựng)';
-  if(kind==='refund'){
-    setDecide(`<p><b>Đã duyệt hoàn tiền.</b> ${who} quyết định; người mua và shop đã được báo.</p>`);
-    ai(`<b>${who} đã quyết định hoàn 1.290.000đ cho bạn</b> sau khi bạn gửi trả nồi chiên. Lý do: mô tả lúc bạn đặt ghi “6 lít” mà không nói là của giỏ chiên.
-      <div class="btns"><button class="btn buyerb">Xem cách gửi trả hàng</button></div>`);
-    setSeller(`<h3>Kết quả đơn DH-2611-0457</h3><p>Sàn quyết định <b>hoàn tiền cho người mua</b>. Lý do: mô tả lúc đặt ghi “6 lít” mà không nói là của giỏ chiên. Bạn nhận lại hàng khi người mua gửi trả.</p>
-      <p class="priv">Không trừ điểm uy tín. Đây là khiếu nại về mô tả, không phải xử phạt.</p>
-      <div class="btns"><button class="btn line">Khiếu nại kết quả</button></div>`);
-  } else {
-    setDecide(`<p><b>Đã từ chối khiếu nại.</b> ${who} quyết định; người mua và shop đã được báo.</p>`);
-    ai(`<b>${who} đã xem cả hai phía và quyết định chưa đủ căn cứ để hoàn tiền.</b> Tem nhà sản xuất cho thấy giỏ chiên 5 lít đúng thông số.
-      <p style="margin:6px 0 0">Không đồng ý? Bạn khiếu nại lại kết quả trong 3 ngày; một nhân viên khác sẽ xem.</p>
-      <div class="btns"><button class="btn line">Khiếu nại lại kết quả</button></div>`);
-    setSeller(`<h3>Kết quả đơn DH-2611-0457</h3><p>Sàn <b>từ chối khiếu nại</b>, tiền về shop.</p><p class="priv">Nên ghi rõ “giỏ chiên 5 lít” ngay từ đầu. Sàn luôn xét theo mô tả lúc khách đặt.</p>`);
-  }
-}
-
-function sellerAgree(sc){
-  const price={A:'1.290.000đ',B:'249.000đ',C:'390.000đ'}[sc];
-  confirmBox({
-    title:`Đồng ý hoàn ${price} cho người mua?`,
-    body:`<p class="loss"><b>Bạn mất ${price}</b>, nhận lại hàng khi người mua gửi trả.</p><p>Bạn là bên mất tiền, nên bạn duyệt được ngay mà không cần chờ nhân viên.</p><p><b>Không đảo được</b> sau khi bạn đồng ý.</p>`,
-    check:'Tôi đồng ý hoàn tiền cho đơn này', go:'Đồng ý hoàn tiền', cls:'go',
-    onGo:()=>{
-      setRail(sc==='B'?4:state.rail.length);
-      setSeller(`<h3>Bạn đã đồng ý hoàn ${price}</h3><p class="priv">Người mua đã được báo. Không trừ điểm uy tín.</p>`);
-      setDecide(`<p><b>Shop đã đồng ý hoàn tiền.</b> Không cần nhân viên duyệt vì bên mất tiền đã đồng ý.</p>`);
-      ai(`<b>Shop đã đồng ý hoàn ${price}</b> cho bạn. Bạn gửi trả hàng trước ${CASES[sc].deadline}; tiền về ví sau khi shop nhận lại hàng.
-        <div class="btns"><button class="btn buyerb">Xem cách gửi trả hàng</button></div>`);
-    }});
-}
-
-/* ================= Ca B: áo gửi nhầm size, ca bình thường ================= */
-function startB(){
+/* ================= KB6: mặc không vừa. Ca bình thường ================= */
+function startK6(){
   setRail(1);
-  setCmp(`<div class="then"><span class="lbl">Lúc đặt, 07/11. Căn cứ để xét</span><q>Áo sơ mi linen, size L</q></div>
+  setCmp(`<div class="then"><span class="lbl">Lúc đặt, 07/11. Căn cứ để xét</span><q>Áo sơ mi linen, size L, ngực 104 cm, dài 72 cm</q></div>
     <div class="now"><span class="lbl">Hiện tại</span><p class="same">Không đổi so với lúc đặt</p></div>
-    <div class="claim"><b>Người mua báo:</b> nhận size M</div>`);
-  addEv('b','Ảnh tem áo ghi size M<small>gửi 12/11</small>');
-  addEv('s','Tin nhắn 10/11: “Bên mình gửi nhầm size, xin lỗi bạn”<small>shop tự nhắn người mua, có trong Chat của đơn</small>');
-  buyer('Mình đặt áo size L mà nhận được size M, mặc không vừa. Shop cũng nhắn nhận là gửi nhầm rồi. Mình muốn trả hàng hoàn tiền thì làm sao?');
-  const m = ai(`Mô tả lúc bạn đặt ghi size L, ảnh tem áo ghi size M, và shop đã nhắn nhận gửi nhầm.
-    ${conf('hi','cao','Ba nguồn khớp nhau, shop đã nhận lỗi.')}
+    <div class="claim"><b>Người mua báo:</b> mặc không vừa</div>`);
+  addEv('b','Chưa có', true); addEv('s','Chưa phản hồi', true);
+  buyer('Tôi muốn trả hàng vì mặc không vừa, nhưng chủ shop bảo không hỗ trợ đổi size');
+  const m = ai(`“Không vừa” có hai trường hợp khác nhau, nên mình hỏi trước khi làm gì.
+    ${conf('lo','thấp','Chưa biết áo sai so với mô tả hay chỉ là không hợp người mặc.')}
+    <p class="q">${N(4)}Áo bạn nhận có đúng size L và đúng số đo trong mô tả không?</p>
+    <div class="opts">
+      <button class="opt" data-k="sai">Nhận size M, không phải L</button>
+      <button class="opt" data-k="do">Đúng size L nhưng đo ngực chỉ 96 cm</button>
+      <button class="opt" data-k="vua">Đúng size, đúng số đo, chỉ là mình mặc không vừa</button>
+    </div>`);
+  m.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{ lockOpts(m,b); buyer(b.textContent); K6a(b.dataset.k); });
+}
+function K6a(k){
+  if(k==='vua'){
+    setRail(4);
+    setClaim('<b>Người mua xác nhận:</b> đúng size, đúng số đo, không hợp người mặc');
+    ai(`Vậy áo <b>đúng mô tả</b>, nên đây không phải khiếu nại “không đúng mô tả”. Đổi hay trả vì không vừa đi theo chính sách đổi trả của shop, và shop có quyền không nhận.
+      <p>Mình không mở khiếu nại, để shop không bị xử thua khi shop đúng.</p>
+      <div class="btns"><button class="btn line">Xem chính sách đổi trả của shop</button></div>`);
+    return;
+  }
+  const reason = k==='sai' ? 'gửi sai size, đặt L nhận M' : 'số đo nhỏ hơn mô tả, ngực 96 cm so với 104 cm';
+  setRail(2);
+  setClaim(`<b>Người mua báo:</b> ${reason}`);
+  fillEv('b', k==='sai' ? 'Ảnh tem áo ghi size M<small>gửi 12/11</small>' : 'Ảnh thước đo ngực áo: 96 cm<small>gửi 12/11</small>');
+  const m = ai(`Vậy áo <b>không đúng mô tả</b>: ${reason}.
+    ${conf('hi','cao','Ảnh của bạn khớp với điểm sai so với mô tả lúc đặt.')}
     <p class="q">Mình đã soạn sẵn yêu cầu trả hàng hoàn tiền:</p>
-    <ul class="need"><li>Lý do: gửi sai size, đặt L nhận M</li><li>Kèm ảnh tem áo và tin nhắn shop nhận lỗi</li><li>Số tiền: 249.000đ</li></ul>
-    <div class="act ask"><span class="lvl">Soạn: tự làm. Hoàn: cần duyệt</span>Bạn bấm gửi. Tiền chỉ hoàn khi shop đồng ý, hoặc nhân viên duyệt nếu hai bên không thống nhất.</div>
-    <div class="btns"><button class="btn buyerb" id="bSend">Gửi yêu cầu trả hàng</button><button class="btn line" id="bEdit">Sửa lý do</button></div>`);
-  m.querySelector('#bSend').onclick=e=>{ e.target.disabled=true; m.querySelector('#bEdit').disabled=true; setRail(3);
-    ai(`Đã gửi yêu cầu trả hàng. Shop có 48 giờ để đồng ý hoặc phản hồi. Có kết quả mình báo ở đây.`);
+    <ul class="need"><li>Lý do: ${reason}</li><li>Kèm ảnh bạn vừa gửi</li><li>Số tiền: ${CASES.k6.price}</li></ul>
+    <div class="act ask"><span class="lvl">Soạn: tự làm. Hoàn: cần duyệt</span>Bạn bấm gửi. Tiền chỉ hoàn khi shop đồng ý, hoặc nhân viên duyệt nếu hai bên không thống nhất. Không đúng mô tả thì bạn không mất phí gửi trả.</div>
+    <div class="btns"><button class="btn buyerb" id="k6Send">Gửi yêu cầu trả hàng</button></div>`);
+  onClick(m,'#k6Send',()=>{ setRail(3);
+    ai('Đã gửi yêu cầu trả hàng. Shop có 48 giờ để đồng ý hoặc phản hồi. Có kết quả mình báo ở đây.');
     setSeller(`<h3>Yêu cầu trả hàng đơn DH-2611-0912</h3>
       <p class="priv">${N(13)}Sàn không hiện số điện thoại và địa chỉ của người mua.</p>
-      <p>Lý do: gửi sai size, đặt L nhận M.</p>
-      <p class="sq">“Bên mình gửi nhầm size, xin lỗi bạn”, tin của chính shop ngày 10/11</p>
-      <div class="clock"><b class="cd" data-sec="172800"></b><span>để phản hồi</span></div>
-      <div class="btns">${N(8)}<button class="btn sellerb" id="sAgreeB">Đồng ý trả hàng hoàn tiền</button><button class="btn line">Phản hồi, không đồng ý</button></div>`);
-    $('#sAgreeB').onclick=()=>sellerAgree('B');
-    hint('Bước tiếp theo ở cột Người bán: bấm “Đồng ý trả hàng hoàn tiền”.');
-  };
-  m.querySelector('#bEdit').onclick=()=>fixFlow();
-}
-
-/* ================= Ca C: tin cụt, doạ bóc phốt, đòi khoá shop, đòi số điện thoại ================= */
-function startC(){
-  setRail(1);
-  setCmp('<p class="placeholder">Chưa biết đơn nào nên chưa có mô tả để đối chiếu.</p>');
-  addEv('b','Chưa có', true); addEv('s','Chưa có', true);
-  buyer('hàng sai rồi, xử lý đi. Không hoàn ngay là tôi bóc phốt lên group, khoá cái shop này luôn đi');
-  const m = ai(`Mình hiểu bạn đang bực. Để xử lý nhanh nhất, mình cần biết một điều trước.
-    ${conf('no','chưa đủ thông tin','Bạn có ba đơn đã nhận gần đây; mình không đoán.')}
-    <p class="q">${N(4)}Đơn nào bị sai?</p>
-    <div class="opts">
-      <button class="opt">DH-2611-0731, tai nghe bluetooth K9, nhận 09/11</button>
-      <button class="opt">DH-2611-0802, ốp lưng điện thoại, nhận 10/11</button>
-      <button class="opt">DH-2611-0815, bình giữ nhiệt 750ml, nhận 11/11</button>
-    </div>
-    <div class="act ban">${N(9)}<span class="lvl">Trợ lý không có quyền này</span>Trợ lý không xử phạt hay khoá shop. Nếu bạn nghi hàng giả, mình chuyển cho bộ phận chuyên trách xem riêng; mình không hứa trước kết quả.
-      <div class="btns"><button class="btn line" id="cFake">Báo nghi hàng giả</button></div></div>
-    <div class="btns"><button class="btn line" id="cPhone">Cho mình số điện thoại của shop</button></div>`);
-  m.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{ lockOpts(m,b); C1(b.textContent); });
-  m.querySelector('#cFake').onclick=e=>{ e.target.disabled=true; buyer('Báo nghi hàng giả');
-    ai(`<div class="act auto">${N(7)}<span class="lvl">Đã tự làm</span>Đã chuyển cho bộ phận kiểm tra hàng giả kèm hồ sơ của bạn. Họ phản hồi trong 3 ngày làm việc.</div>Việc này chạy riêng, không làm chậm yêu cầu trả hàng của bạn.`);
-    setDecide(`<h3 style="margin:0 0 6px;font-size:15px">Bộ phận chuyên trách: nghi hàng giả</h3>
-      <p>Người mua yêu cầu khoá shop và nghi hàng giả. Chưa có bằng chứng hàng giả. Lời doạ “bóc phốt” đã ghi nhận nhưng <b>không dùng làm căn cứ</b>.</p>
-      <p class="priv">${N(9)}Xử phạt shop chỉ có trong công cụ của bộ phận này. Trợ lý AI không có nút phạt.</p>
-      <div class="btns"><button class="btn line" id="stBackC">Trả về trợ lý</button></div>`);
-    $('#stBackC').onclick=()=>setDecide('<p class="idle">Đã trả về luồng khiếu nại thường.</p>');
-  };
-  m.querySelector('#cPhone').onclick=e=>{ e.target.disabled=true; buyer('Cho mình số điện thoại của shop');
-    ai(`${N(13)}Mình không chia sẻ số điện thoại hay địa chỉ giữa người mua và người bán. Bạn nhắn shop ở mục Chat trong đơn hàng; mọi tin ở đó được lưu và dùng làm bằng chứng cho bạn.`); };
-}
-
-function C1(label){
-  buyer(label);
-  CASES.C.deadline='16/11';
-  setRail(2);
-  $('#order').innerHTML='<b>Đơn DH-2611-0731</b><br>Tai nghe bluetooth K9, 390.000đ<br>Đặt 05/11, nhận 09/11';
-  $('#deadline').innerHTML=`${N(12)}Hạn trả hàng <b>16/11</b>, còn 4 ngày`;
-  $('#shopName').textContent='Âm Thanh Số (dựng)'; $('#fileTitle').textContent='Đơn DH-2611-0731, tai nghe bluetooth K9';
-  setCmp(`<div class="then"><span class="lbl">Lúc đặt, 05/11. Căn cứ để xét</span><q>Tai nghe bluetooth K9, chống ồn chủ động, pin 30 giờ</q></div>
-    <div class="now"><span class="lbl">Hiện tại</span><p class="same">Không đổi so với lúc đặt</p></div>`);
-  const m = ai(`Cảm ơn bạn. Một câu nữa thôi.
-    <p class="q">${N(4)}Sai ở điểm nào so với mô tả?</p>
-    <div class="opts">
-      <button class="opt">Sai màu hoặc mẫu</button>
-      <button class="opt">Không có chống ồn như mô tả</button>
-      <button class="opt">Hàng hỏng, không dùng được</button>
-      <button class="opt">Lỗi khác, mình tự ghi</button>
-    </div>`);
-  m.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{ lockOpts(m,b); buyer(b.textContent); setRail(3);
-    $('#cmp').insertAdjacentHTML('beforeend', `<div class="claim"><b>Người mua báo:</b> ${b.textContent.toLowerCase()}</div>`);
-    $('#evB').innerHTML=''; $('#evS').innerHTML='';
-    addEv('b','Ảnh hoặc video cho thấy lỗi', true); addEv('s','Chưa phản hồi', true);
-    ai(`Đã ghi nhận. Từ đây hồ sơ đi như một khiếu nại bình thường.
-      <div class="act auto">${N(6)}<span class="lvl">Đã tự làm</span>Đã gửi mẫu xin bằng chứng cho bạn và cho shop. Shop có 48 giờ để phản hồi.</div>
-      Hồ sơ được xét theo mô tả lúc bạn đặt và bằng chứng hai bên gửi.`);
-    setSeller(`<h3>Khiếu nại đơn DH-2611-0731</h3>
-      <p class="priv">${N(13)}Sàn không hiện số điện thoại và địa chỉ của người mua.</p>
-      <p>Người mua báo: ${b.textContent.toLowerCase()}.</p>
-      <p class="priv">Hồ sơ được xét theo mô tả lúc khách đặt và bằng chứng hai bên. Lời đe doạ trong tin nhắn không phải căn cứ nên không hiện ở đây.</p>
+      <p>Lý do: ${reason}.</p>
+      <p class="sq">Mô tả lúc đặt: size L, ngực 104 cm</p>
       <div class="clock">${N(6)}<b class="cd" data-sec="172800"></b><span>để phản hồi</span></div>
-      <div class="btns"><button class="btn sellerb">Gửi bằng chứng phản hồi</button><button class="btn line" id="sAgreeC">Đồng ý trả hàng hoàn tiền</button></div>`);
-    $('#sAgreeC').onclick=()=>sellerAgree('C');
+      <div class="btns"><button class="btn sellerb" id="k6Agree">${N(8)}Đồng ý trả hàng hoàn tiền</button><button class="btn line">Phản hồi, không đồng ý</button></div>`);
+    $('#k6Agree').onclick=()=>sellerAgree('k6');
+    hint('Bước tiếp theo ở cột Người bán: bấm “Đồng ý trả hàng hoàn tiền”.'); });
+}
+
+/* ---------- G9, G15: người mua sửa lại điều trợ lý hiểu ---------- */
+function fixFlow(){
+  const m = ai(`${N(10)}Sai ở đâu? Mình sửa hồ sơ ngay.
+    <div class="opts">
+      <button class="opt" data-v="don">Mình chọn nhầm đơn</button>
+      <button class="opt" data-v="part">${state.sc==='k9' ? 'Mình đo phần khác, không phải phần trợ lý ghi' : 'Trợ lý ghi sai lỗi của hàng'}</button>
+      <button class="opt" data-v="khac">Lỗi khác</button>
+    </div>`);
+  m.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{ lockOpts(m,b); buyer(b.textContent);
+    if(b.dataset.v==='part' && state.sc==='k9'){ state.part = state.part==='giỏ chiên' ? 'lòng nồi ngoài' : 'giỏ chiên';
+      setClaim(`<b>Người mua báo (đã đính chính):</b> đo ${state.part} được 5 lít`); }
+    ai(`Đã sửa hồ sơ${b.dataset.v==='part' && state.sc==='k9' ? `: bạn đo <b>${state.part}</b>` : ''}. Shop và nhân viên thấy bản đã sửa, có ghi “người mua đã đính chính”. Tin đã gửi cho shop thì không thu hồi được; mình đã gửi thêm tin đính chính.`);
   });
 }
 
-/* G8: "Gặp nhân viên" ở mọi bước */
+/* ---------- G8: "Gặp nhân viên" ở mọi bước ---------- */
 $('#human').onclick=()=>{
   buyer('Gặp nhân viên');
   if(state.transferred){ ai('Hồ sơ của bạn đã ở chỗ nhân viên. Bạn không cần làm gì thêm; có kết quả mình báo ở đây.'); return; }
   state.transferred=true;
   ai(`<div class="act auto">${N(7)}<span class="lvl">Đã tự làm</span>Đã chuyển nhân viên, chờ khoảng 2 giờ. Toàn bộ tin nhắn và bằng chứng đã gửi kèm; bạn không phải kể lại.</div>`);
-  setDecide(`<h3 style="margin:0 0 6px;font-size:15px">Người mua yêu cầu gặp nhân viên</h3>
+  setDecide(`<h3>Người mua yêu cầu gặp nhân viên</h3>
     <p>Trợ lý đã gửi kèm toàn bộ hội thoại và bằng chứng hiện có.</p>
     <p class="priv">Hạn trả lời còn <b class="cd" data-sec="7200"></b></p>
     <div class="btns"><button class="btn line" id="stBackH">Trả về trợ lý</button></div>`);
@@ -608,7 +695,7 @@ $('#human').onclick=()=>{
 
 document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>start(b.dataset.sc));
 $('#showN').onchange=e=>document.body.classList.toggle('hide-n', !e.target.checked);
-start('A');
+start('k4');
 </script>
 </body>
 </html>
