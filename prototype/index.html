@@ -500,7 +500,7 @@ const CASES = {
 
 function start(sc){
   const c=CASES[sc];
-  state={sc, transferred:false, rail:c.rail, part:'giỏ chiên', closed:false, turn:null};
+  state={sc, transferred:false, rail:c.rail, part:'giỏ chiên', closed:false, turn:null, k4Doc:false, uploaded:false};
   touched=[]; showTurn(null);
   document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.sc===sc));
   timers.forEach(clearInterval); timers=[];
@@ -511,6 +511,44 @@ function start(sc){
   $('#deadline').innerHTML=`${N(12)}${c.dl[0].toUpperCase()+c.dl.slice(1)}`;
   $('#rail').innerHTML=c.rail.map(s=>`<li>${s}</li>`).join('');
   ({k4:startK4,k5:startK5,k9:startK9,k6:startK6})[sc]();
+}
+
+/* ---------- Dùng chung: hướng dẫn trả hàng, xin ảnh bổ sung, khiếu nại lại ---------- */
+function bindReturnGuide(msgEl){
+  const btn = msgEl && msgEl.querySelector('.ret-guide');
+  if(!btn) return;
+  onClick(msgEl, '.ret-guide', ()=>{
+    buyer('Xem cách gửi trả hàng');
+    ai(`Hướng dẫn gửi trả hàng (phí vận chuyển 0đ vì lỗi mô tả):
+      <ul class="need">
+        <li>Đóng gói nguyên vẹn sản phẩm kèm đầy đủ phụ kiện, tem mác, hộp.</li>
+        <li>Chọn <b>Đơn vị vận chuyển lấy hàng tại nhà</b> hoặc mang ra bưu cục gần nhất trong mục Trả hàng của đơn.</li>
+        <li>Không gửi hàng hoặc chuyển khoản trực tiếp ngoài sàn. Tiền về ví sau khi shop xác nhận nhận lại hàng.</li>
+      </ul>`);
+  });
+}
+
+function bindAppeal(root, who){
+  const btn = root && root.querySelector('.appeal-btn');
+  if(!btn) return;
+  onClick(root, '.appeal-btn', ()=>{
+    if(who==='buyer'){
+      buyer('Khiếu nại lại kết quả');
+      ai('Đã ghi nhận yêu cầu khiếu nại lại kết quả. Một nhân viên cấp cao khác sẽ rà soát độc lập toàn bộ bằng chứng và phản hồi bạn trong 24 giờ.');
+    } else {
+      root.insertAdjacentHTML('beforeend', `<p class="priv" style="margin-top:10px"><b>Đã ghi nhận khiếu nại kết quả từ shop.</b> Hồ sơ được chuyển bộ phận kiểm soát chất lượng rà soát lại trong 24–48 giờ.</p>`);
+    }
+  });
+}
+
+function askExtraEvidence({prompt, buyerLabel, evHtml, aiReply, onSubmitted}){
+  const m = ai(`${prompt}<div class="btns"><button class="btn buyerb extra-up">Gửi ảnh bổ sung</button></div>`);
+  onClick(m, '.extra-up', ()=>{
+    buyer(buyerLabel || '📷 Ảnh bổ sung theo yêu cầu');
+    addEv('b', evHtml);
+    if(aiReply) ai(aiReply);
+    onSubmitted();
+  });
 }
 
 /* ---------- Dùng chung: shop đồng ý, nhân viên quyết ---------- */
@@ -525,9 +563,10 @@ function sellerAgree(sc, {noReturn}={}){
       setRail(state.rail.length, c.endSeller || {});
       setSeller(`<h3>Bạn đã đồng ý hoàn ${c.price}</h3><p class="priv">Người mua đã được báo. Không trừ điểm uy tín.</p>`);
       setDecide(`<p><b>Shop đã đồng ý hoàn tiền.</b> Không cần nhân viên duyệt vì bên mất tiền đã đồng ý.</p>`);
-      ai(noReturn
+      const m = ai(noReturn
         ? `<b>Shop đã đồng ý hoàn ${c.price}</b> cho bạn. Bạn không cần gửi trả hàng; tiền về ví trong 24 giờ.`
-        : `<b>Shop đã đồng ý hoàn ${c.price}</b> cho bạn. Bạn gửi trả hàng trước ${c.deadline}; tiền về ví sau khi shop nhận lại hàng.<div class="btns"><button class="btn buyerb">Xem cách gửi trả hàng</button></div>`);
+        : `<b>Shop đã đồng ý hoàn ${c.price}</b> cho bạn. Bạn gửi trả hàng trước ${c.deadline}; tiền về ví sau khi shop nhận lại hàng.<div class="btns"><button class="btn buyerb ret-guide">Xem cách gửi trả hàng</button></div>`);
+      bindReturnGuide(m);
     }});
 }
 
@@ -558,11 +597,14 @@ function staffDone(kind,o){
   setRail(state.rail.length, {label:{[last]: (o.who||'Nhân viên') + (kind==='refund' ? ' duyệt hoàn tiền' : ' từ chối khiếu nại')}});
   if(kind==='refund'){
     setDecide(`<p><b>Đã duyệt hoàn tiền.</b> ${STAFF} quyết định; người mua và shop đã được báo.</p>`);
-    ai(`<b>${STAFF} đã quyết định hoàn ${c.price} cho bạn.</b> Lý do: ${o.refundWhy}${o.noReturn ? ' Bạn không cần gửi trả hàng.' : '<div class="btns"><button class="btn buyerb">Xem cách gửi trả hàng</button></div>'}`);
-    setSeller(`<h3>Kết quả ${c.title.split(',')[0].toLowerCase()}</h3><p>Sàn quyết định <b>hoàn tiền cho người mua</b>. Lý do: ${o.refundWhy}</p><p class="priv">Không trừ điểm uy tín. Đây là khiếu nại về đơn hàng, không phải xử phạt.</p><div class="btns"><button class="btn line">Khiếu nại kết quả</button></div>`);
+    const m = ai(`<b>${STAFF} đã quyết định hoàn ${c.price} cho bạn.</b> Lý do: ${o.refundWhy}${o.noReturn ? ' Bạn không cần gửi trả hàng.' : '<div class="btns"><button class="btn buyerb ret-guide">Xem cách gửi trả hàng</button></div>'}`);
+    bindReturnGuide(m);
+    setSeller(`<h3>Kết quả ${c.title.split(',')[0].toLowerCase()}</h3><p>Sàn quyết định <b>hoàn tiền cho người mua</b>. Lý do: ${o.refundWhy}</p><p class="priv">Không trừ điểm uy tín. Đây là khiếu nại về đơn hàng, không phải xử phạt.</p><div class="btns"><button class="btn line appeal-btn">Khiếu nại kết quả</button></div>`);
+    bindAppeal($('#seller'), 'seller');
   } else {
     setDecide(`<p><b>Đã từ chối khiếu nại.</b> ${STAFF} quyết định; người mua và shop đã được báo.</p>`);
-    ai(`<b>${STAFF} đã xem cả hai phía và quyết định chưa đủ căn cứ để hoàn tiền.</b> ${o.rejectWhy}<p>Không đồng ý? Bạn khiếu nại lại kết quả trong 3 ngày; một nhân viên khác sẽ xem.</p><div class="btns"><button class="btn line">Khiếu nại lại kết quả</button></div>`);
+    const m = ai(`<b>${STAFF} đã xem cả hai phía và quyết định chưa đủ căn cứ để hoàn tiền.</b> ${o.rejectWhy}<p>Không đồng ý? Bạn khiếu nại lại kết quả trong 3 ngày; một nhân viên khác sẽ xem.</p><div class="btns"><button class="btn line appeal-btn">Khiếu nại lại kết quả</button></div>`);
+    bindAppeal(m, 'buyer');
     setSeller(`<h3>Kết quả ${c.title.split(',')[0].toLowerCase()}</h3><p>Sàn <b>từ chối khiếu nại</b>, tiền về shop.</p>`);
   }
 }
@@ -615,29 +657,68 @@ function startK4(){
     ai(`<b>${STAFF}:</b> mình đã xem hồ sơ và chuyển cho bộ phận kiểm tra hàng giả; kết quả trong 3 ngày làm việc. Yêu cầu trả hàng của bạn vẫn chạy song song, hạn khiếu nại được giữ.`);
     sellerK4('check');
     onClick($('#decide'),'#k4Result',()=>{
-      setRail(4);
-      staffDecide({ sec:86400, who:'Bộ phận hàng giả',
-        why:`Bộ phận kiểm tra hàng giả đã xem ${state.k4Doc ? 'hoá đơn nhập hàng của shop' : 'hồ sơ (shop chưa gửi chứng từ)'} và ảnh tem của người mua: tem không quét được mã.`,
-        basis:'mô tả lúc đặt ghi “hàng chính hãng, có tem chống giả”; tem trên hàng nhận được không quét được mã.',
-        refundWhy:'mô tả lúc đặt ghi hàng chính hãng có tem chống giả, nhưng tem trên hàng bạn nhận không quét được mã.',
-        rejectWhy:'Hoá đơn nhập hàng cho thấy hàng có nguồn gốc từ nhà phân phối chính hãng.',
-        onBack:()=>{ setRail(3); ai('Bộ phận kiểm tra hàng giả cần thêm một thông tin: ảnh số seri trên vỏ tai nghe. Bạn gửi thêm một ảnh là đủ.'); } });
+      if(!state.k4Doc) sellerK4('expired');
+      const openK4Staff = () => {
+        setRail(4);
+        staffDecide({ sec:86400, who:'Bộ phận hàng giả',
+          why:`Bộ phận kiểm tra hàng giả đã xem ${state.k4Doc ? 'hoá đơn nhập hàng của shop' : 'hồ sơ (shop chưa gửi chứng từ trong 48 giờ)'} và ảnh tem của người mua: tem không quét được mã.`,
+          basis:'mô tả lúc đặt ghi “hàng chính hãng, có tem chống giả”; tem trên hàng nhận được không quét được mã.',
+          refundWhy:'mô tả lúc đặt ghi hàng chính hãng có tem chống giả, nhưng tem trên hàng bạn nhận không quét được mã.',
+          rejectWhy: state.k4Doc
+            ? 'Hoá đơn nhập hàng cho thấy hàng có nguồn gốc từ nhà phân phối chính hãng.'
+            : 'Ảnh tem người mua gửi chưa đủ căn cứ khẳng định hàng giả (dù shop quá hạn gửi chứng từ).',
+          onBack:()=>{
+            setRail(3);
+            askExtraEvidence({
+              prompt:'Bộ phận kiểm tra hàng giả cần thêm một thông tin: ảnh số seri trên vỏ tai nghe. Bạn gửi thêm một ảnh là đủ.',
+              buyerLabel:'📷 Ảnh số seri trên vỏ tai nghe',
+              evHtml:'Ảnh số seri trên vỏ tai nghe<small>bổ sung theo yêu cầu</small>',
+              aiReply:'Đã nhận ảnh số seri và chuyển lại cho bộ phận kiểm tra hàng giả quyết định.',
+              onSubmitted:()=>{ state.transferred=true; openK4Staff(); }
+            });
+          } });
+      };
+      openK4Staff();
     });
   };
-  // Nhân viên đã liên hệ và trả về luồng thường: các bước trước vẫn là đã xảy ra, không lùi lại
+  // Nhân viên đã liên hệ và trả về luồng thường: cho người mua gửi bằng chứng và chuyển lại nhân viên khi đủ
   $('#k4Back').onclick=()=>{ state.transferred=false;
     setRail(3, {label:{2:'Nhân viên xem, trả về luồng thường'}});
-    setDecide('<p class="idle">Nhân viên đã trả hồ sơ về luồng thường.</p>');
-    ai('Nhân viên đã xem và trả hồ sơ về luồng thường. Mình gửi mẫu xin bằng chứng cho bạn và cho shop ngay bây giờ.'); };
+    setDecide('<p class="idle">Nhân viên đã trả hồ sơ về luồng thường, chờ người mua bổ sung bằng chứng.</p>');
+    askExtraEvidence({
+      prompt:'Nhân viên đã xem và trả hồ sơ về luồng thường. Bạn vui lòng gửi ảnh/video tem và hộp sản phẩm để hoàn tất hồ sơ xét duyệt.',
+      buyerLabel:'📷 Ảnh và video tem hộp tai nghe',
+      evHtml:'Ảnh và video tem hộp tai nghe<small>gửi 12/11</small>',
+      aiReply:'Đã nhận bằng chứng của bạn và chuyển hồ sơ lại cho nhân viên xử lý theo quy trình thông thường.',
+      onSubmitted:()=>{
+        state.transferred=true;
+        setRail(4, {label:{3:'Đã đủ bằng chứng hai bên', 4:'Nhân viên quyết định'}});
+        staffDecide({ sec:86400,
+          why:`Nhân viên xét theo luồng thường dựa trên bằng chứng người mua vừa bổ sung${state.k4Doc ? ' và chứng từ shop đã gửi' : ' (shop chưa gửi chứng từ)'}.`,
+          basis:'mô tả lúc đặt ghi “hàng chính hãng, có tem chống giả”.',
+          refundWhy:'sản phẩm không đạt cam kết chính hãng có tem chống giả theo mô tả lúc đặt.',
+          rejectWhy: state.k4Doc ? 'Chứng từ nguồn gốc của shop hợp lệ.' : 'Bằng chứng người mua gửi chưa đủ chứng minh lỗi mô tả.',
+          onBack:()=>{ setRail(3); askExtraEvidence({
+            prompt:'Nhân viên cần thêm một ảnh cận cảnh mã vạch hộp tai nghe.',
+            buyerLabel:'📷 Ảnh mã vạch hộp tai nghe',
+            evHtml:'Ảnh mã vạch hộp tai nghe<small>bổ sung theo yêu cầu</small>',
+            aiReply:'Đã nhận ảnh mã vạch và gửi lại cho nhân viên.',
+            onSubmitted:()=>{ state.transferred=true; setRail(4); }
+          }); } });
+      }
+    }); };
 }
 function sellerK4(stage){
   const head=`<h3>Khiếu nại đơn DH-2611-0731</h3><p class="priv">${N(13)}Sàn không hiện số điện thoại và địa chỉ của người mua.</p>`;
   const sent = state.k4Doc ? `<p><b>Bạn đã gửi:</b> hoá đơn nhập hàng từ nhà phân phối K9.</p>` : '';
-  const ask = state.k4Doc ? '' : `<div class="clock">${N(6)}<b class="cd" data-sec="172800"></b><span>để phản hồi</span></div>
+  const ask = (state.k4Doc || stage==='expired') ? '' : `<div class="clock">${N(6)}<b class="cd" data-sec="172800"></b><span>để phản hồi</span></div>
       <div class="btns"><button class="btn sellerb" id="k4Doc">Gửi phản hồi và chứng từ nguồn gốc</button></div>`;
   if(stage==='notice'){
     setSeller(head+`<p>Đơn này có khiếu nại đang được xử lý. Sàn sẽ xét dựa trên bằng chứng của cả hai bên.</p>
       <p class="priv">Chưa có kết luận, chưa có xử phạt.</p>${sent}${ask}`);
+  } else if(stage==='expired'){
+    setSeller(head+`<p><b>Đã hết hạn 48 giờ phản hồi.</b> Shop chưa gửi chứng từ nguồn gốc; hồ sơ đang chờ bộ phận kiểm tra hàng giả kết luận.</p>
+      <p class="priv">Sàn không tự động phạt hay hoàn tiền chỉ vì quá hạn; nhân viên sẽ xét dựa trên bằng chứng hiện có.</p>`);
   } else {
     setSeller(head+`<p>Sàn đang kiểm tra nghi vấn hàng không chính hãng. Gửi hoá đơn nhập hàng hoặc giấy uỷ quyền phân phối nếu có.</p>
       <p class="priv"><b>Chưa có kết luận, chưa có xử phạt.</b></p>${sent}${ask}`);
@@ -682,13 +763,19 @@ function K5notFresh(){
     <div class="btns"><button class="btn dark" id="k5Keep">Giữ luồng hoàn tiền không trả hàng</button><button class="btn line" id="k5Ret">Chuyển sang trả hàng</button></div>`);
   $('#k5Keep').onclick=()=>{ state.transferred=false; setRail(2, {label:{1:'Trưởng nhóm giữ hoàn tiền không trả hàng'}});
     setDecide('<p class="idle">Trưởng nhóm giữ luồng hoàn tiền không trả hàng.</p>');
-    ai(`<b>${STAFF}:</b> đơn này đúng là hàng tươi sống, nên vẫn đi luồng hoàn tiền không trả hàng. Bạn tải ảnh lên như hướng dẫn ở trên.`); };
+    if(!state.uploaded){
+      const m = ai(`<b>${STAFF}:</b> đơn này đúng là hàng tươi sống, nên vẫn đi luồng hoàn tiền không trả hàng. Bạn tải ảnh lên để tiếp tục.`);
+      const upBtn = $('#k5Up'); if(upBtn){ upBtn.disabled=false; }
+    } else {
+      ai(`<b>${STAFF}:</b> đơn này đúng là hàng tươi sống, nên vẫn đi luồng hoàn tiền không trả hàng. Ảnh bạn đã tải lên rồi; bạn bấm <b>Gửi yêu cầu hoàn tiền</b> ở trên để gửi cho shop.`);
+    } };
   $('#k5Ret').onclick=()=>{ state.transferred=false;
     setRail(state.rail.length, {label:{1:'Trưởng nhóm chuyển sang trả hàng thường'}, skip:[2,3,4]});
     setDecide('<p class="idle">Trưởng nhóm đã sửa danh mục đơn và chuyển sang luồng trả hàng.</p>');
-    ai(`<b>${STAFF}:</b> mình đã sửa danh mục của đơn và chuyển sang luồng trả hàng thường.`); };
+    ai(`<b>${STAFF}:</b> mình đã sửa danh mục của đơn và chuyển sang luồng trả hàng thường. Bạn có thể tạo yêu cầu trả hàng và chọn đơn vị vận chuyển trong mục Đơn hàng.`); };
 }
 function K5b(){
+  state.uploaded=true;
   buyer('📷 Ảnh và video lúc mở hộp');
   fillEv('b','Video mở hộp 10:20: túi đá đã tan, thịt mềm; thấy tem mã đơn và hạn sử dụng<small>gửi 12/11</small>');
   $('#k5Need').querySelectorAll('li').forEach(li=>li.classList.remove('todo')); flash($('#k5Need'));
@@ -700,7 +787,9 @@ function K5b(){
     <div class="act ask"><span class="lvl">Soạn: tự làm. Hoàn: cần duyệt</span>Bạn bấm gửi. Tiền chỉ hoàn khi shop đồng ý, hoặc nhân viên duyệt nếu shop phản đối hoặc hết 12 giờ mà shop chưa phản hồi.</div>
     <p>Bạn giữ nguyên sản phẩm đến khi có kết quả.</p>
     <div class="btns"><button class="btn buyerb" id="k5Send">Gửi yêu cầu hoàn tiền</button></div>`);
-  onClick(m,'#k5Send',()=>{ setRail(3);
+  onClick(m,'#k5Send',()=>{
+    const fixBtn=$('#k5Fix'); if(fixBtn){ fixBtn.disabled=true; fixBtn.style.opacity='.45'; }
+    setRail(3);
     ai(`Đã gửi yêu cầu.
       <div class="act auto">${N(6)}<span class="lvl">Đã tự làm</span>Đã nhắn shop. Với hàng tươi sống, shop có <b>12 giờ</b> để đồng ý hoặc phản đối, đến 13/11 03:00. Có kết quả mình báo ở đây.</div>`);
     const s=$('#evS .miss'); if(s) s.textContent='Chưa phản hồi';
@@ -712,24 +801,51 @@ function sellerK5(){
     <p>Yêu cầu: <b>hoàn ${CASES.k5.price}, không trả hàng</b>.</p>
     <p class="sq">Video lúc mở hộp 10:20: túi đá đã tan, thịt mềm, tem mã đơn DH-2611-1103</p>
     <div class="clock">${N(6)}<b class="cd" data-sec="43200"></b><span>để phản hồi, rút ngắn vì hàng tươi sống</span></div>
-    <div class="btns"><button class="btn sellerb" id="k5Agree">${N(8)}Đồng ý hoàn tiền</button><button class="btn line" id="k5Dispute">Phản đối, gửi bằng chứng</button></div>`);
+    <div class="btns"><button class="btn sellerb" id="k5Agree">${N(8)}Đồng ý hoàn tiền</button><button class="btn line" id="k5Dispute">Phản đối, gửi bằng chứng</button></div>
+    <p><button class="link" id="k5Timeout">Mô phỏng: shop quá hạn 12 giờ chưa phản hồi</button></p>`);
   $('#k5Agree').onclick=()=>sellerAgree('k5',{noReturn:true});
-  onClick($('#seller'),'#k5Dispute',()=>K5dispute());
+  onClick($('#seller'),'#k5Dispute',()=>K5dispute(false));
+  onClick($('#seller'),'#k5Timeout',()=>K5dispute(true));
 }
-function K5dispute(){
-  fillEv('s','Ảnh đóng gói lúc giao 06:40: thùng xốp, 2 túi đá khô<small>gửi 12/11</small>');
-  setSeller(`<h3>Bạn đã phản đối và gửi bằng chứng</h3><p class="priv">Hồ sơ đang ở chỗ trưởng nhóm. Chưa có quyết định, chưa trừ tiền. Có kết quả trước 12/11 21:00.</p>`);
+function K5dispute(isTimeout){
+  if(isTimeout){
+    const s=$('#evS .miss'); if(s) s.textContent='Quá hạn 12 giờ, không phản hồi';
+    setSeller(`<h3>Đã hết hạn 12 giờ phản hồi</h3><p class="priv">Hồ sơ đã chuyển nhân viên xem xét trong 6 giờ. <b>Sàn không tự động hoàn tiền</b> chỉ vì quá hạn.</p>`);
+  } else {
+    fillEv('s','Ảnh đóng gói lúc giao 06:40: thùng xốp, 2 túi đá khô<small>gửi 12/11</small>');
+    setSeller(`<h3>Bạn đã phản đối và gửi bằng chứng</h3><p class="priv">Hồ sơ đang ở chỗ trưởng nhóm. Chưa có quyết định, chưa trừ tiền. Có kết quả trước 12/11 21:00.</p>`);
+  }
   state.transferred=true;
-  setRail(4, {label:{3:'Shop phản đối, gửi bằng chứng', 4:'Nhân viên quyết định'}});
-  ai(`Shop phản đối và gửi ảnh đóng gói lúc giao: thùng xốp và 2 túi đá khô.
-    ${conf('no','chưa đủ căn cứ','Hai bên có bằng chứng khác nhau về lúc giao và lúc nhận.')}
-    <div class="act auto">${N(7)}<span class="lvl">Đã tự làm</span>Mình đã chuyển trưởng nhóm. Hàng tươi sống nên được xét trong 6 giờ, trước 12/11 21:00.</div>`);
-  staffDecide({ sec:21600, noReturn:true,
-    why:'Shop phản đối. Video mở hộp cho thấy túi đá đã tan; shop có ảnh đóng gói đủ đá lúc 06:40.',
-    basis:'mô tả lúc đặt hứa “còn đông đá khi nhận”; video mở hộp 20 phút sau khi nhận cho thấy đã rã đông.',
-    refundWhy:'mô tả hứa hàng còn đông đá khi nhận, và video mở hộp 20 phút sau khi nhận cho thấy đã rã đông.',
-    rejectWhy:'Ảnh đóng gói cho thấy hàng đủ đá khi giao.',
-    onBack:()=>ai('Trưởng nhóm cần thêm một thông tin: ảnh nhãn vận chuyển ghi giờ giao. Bạn gửi thêm một ảnh là đủ.') });
+  const openK5Staff = () => {
+    setRail(4, {label:{3: isTimeout ? 'Shop quá hạn 12 giờ' : 'Shop phản đối, gửi bằng chứng', 4:'Nhân viên quyết định'}});
+    staffDecide({ sec:21600, noReturn:true,
+      why: isTimeout
+        ? 'Shop không phản hồi trong 12 giờ (hàng tươi sống). Hồ sơ chuyển nhân viên xét dựa trên bằng chứng người mua; sàn không tự động hoàn.'
+        : 'Shop phản đối. Video mở hộp cho thấy túi đá đã tan; shop có ảnh đóng gói đủ đá lúc 06:40.',
+      basis:'mô tả lúc đặt hứa “còn đông đá khi nhận”; video mở hộp 20 phút sau khi nhận cho thấy đã rã đông.',
+      refundWhy:'mô tả hứa hàng còn đông đá khi nhận, và video mở hộp 20 phút sau khi nhận cho thấy đã rã đông.',
+      rejectWhy: isTimeout
+        ? 'Video mở hộp chưa đủ chứng minh lỗi bảo quản phát sinh trước khi giao hàng.'
+        : 'Ảnh đóng gói cho thấy hàng đủ đá khi giao.',
+      onBack:()=>{
+        setRail(3);
+        askExtraEvidence({
+          prompt:'Trưởng nhóm cần thêm một thông tin: ảnh nhãn vận chuyển ghi giờ giao. Bạn gửi thêm một ảnh là đủ.',
+          buyerLabel:'📷 Ảnh nhãn vận chuyển ghi giờ giao',
+          evHtml:'Ảnh nhãn vận chuyển ghi giờ giao 10:00<small>bổ sung theo yêu cầu</small>',
+          aiReply:'Đã nhận ảnh nhãn vận chuyển và chuyển lại cho trưởng nhóm quyết định.',
+          onSubmitted:()=>{ state.transferred=true; openK5Staff(); }
+        });
+      } });
+  };
+  ai(isTimeout
+    ? `Đã quá 12 giờ mà shop chưa phản hồi.
+      ${conf('hi','cao','Video của bạn rõ và đúng hạn, nhưng sàn không tự động hoàn tiền.')}
+      <div class="act auto">${N(7)}<span class="lvl">Đã tự làm</span>Mình đã chuyển trưởng nhóm xét duyệt. Hàng tươi sống nên có kết quả trong 6 giờ.</div>`
+    : `Shop phản đối và gửi ảnh đóng gói lúc giao: thùng xốp và 2 túi đá khô.
+      ${conf('no','chưa đủ căn cứ','Hai bên có bằng chứng khác nhau về lúc giao và lúc nhận.')}
+      <div class="act auto">${N(7)}<span class="lvl">Đã tự làm</span>Mình đã chuyển trưởng nhóm. Hàng tươi sống nên được xét trong 6 giờ, trước 12/11 21:00.</div>`);
+  openK5Staff();
 }
 
 /* ================= KB9: shop đã sửa mô tả sau khi bán. Ca demo bắt buộc của track ================= */
@@ -754,14 +870,17 @@ function startK9(){
 }
 function K9a(ans, label){
   buyer(label);
-  state.part = ans==='ngoai' ? 'lòng nồi ngoài' : 'giỏ chiên';
+  const unsure = ans==='kchac';
+  state.part = ans==='ngoai' ? 'lòng nồi ngoài' : unsure ? 'phần đo (chưa rõ giỏ chiên hay nồi ngoài)' : 'giỏ chiên';
   setRail(2);
-  setClaim(`<b>Người mua báo:</b> đo ${state.part} được 5 lít`);
-  const m = ai(`<p style="margin:0">${N(5)}Hồ sơ của bạn:</p>
+  setClaim(unsure
+    ? '<b>Người mua báo:</b> đo được 5 lít (chưa rõ giỏ chiên hay lòng nồi ngoài)'
+    : `<b>Người mua báo:</b> đo ${state.part} được 5 lít`);
+  const m = ai(`${unsure ? '<p style="margin:0 0 8px">Mẹo phân biệt: <b>giỏ chiên</b> là rổ tháo rời đựng thức ăn; <b>lòng nồi ngoài</b> là khoang chứa bên ngoài.</p>' : ''}<p style="margin:0">${N(5)}Hồ sơ của bạn:</p>
     <ul class="need">
       <li>Ảnh sản phẩm bạn nhận</li>
       <li>Mô tả lúc đặt, sàn tự lấy</li>
-      <li class="todo">Còn thiếu đúng một thứ: ảnh lúc đổ nước đo ${state.part}, thấy rõ vạch trên ca đong</li>
+      <li class="todo">Còn thiếu đúng một thứ: ảnh lúc đổ nước đo ${unsure ? 'thấy rõ bạn đang đo giỏ hay lòng nồi ngoài và vạch trên ca đong' : state.part + ', thấy rõ vạch trên ca đong'}</li>
     </ul>
     <div class="act auto">${N(6)}<span class="lvl">Đã tự làm</span>Đã gửi mẫu xin bằng chứng cho shop. Shop có 48 giờ để phản hồi, đến 14/11 15:00. Bạn không cần nhắn shop.</div>
     <div class="btns"><button class="btn buyerb" id="upA">Tải ảnh đo lên</button></div>
@@ -779,10 +898,16 @@ function sellerK9(stage){
   if(stage==='wait'){
     setSeller(head + `<div class="clock">${N(6)}<b class="cd" data-sec="172800"></b><span>để phản hồi, trước khi sàn quyết định bất cứ điều gì</span></div>
       <p>Gửi thông số hoặc ảnh tem nhà sản xuất cho thấy “6 lít” là của phần nào. Hết hạn mà chưa phản hồi thì hồ sơ chuyển nhân viên; <b>sàn không tự động hoàn tiền</b>.</p>
-      <div class="btns"><button class="btn sellerb" id="sReply">Gửi bằng chứng phản hồi</button><button class="btn line" id="sAgree">Đồng ý trả hàng hoàn tiền</button></div>`);
+      <div class="btns"><button class="btn sellerb" id="sReply">Gửi bằng chứng phản hồi</button><button class="btn line" id="sAgree">Đồng ý trả hàng hoàn tiền</button></div>
+      <p><button class="link" id="sTimeout">Mô phỏng: shop quá hạn 48 giờ chưa phản hồi</button></p>`);
     $('#sReply').disabled = !state.uploaded;
-    $('#sReply').onclick=()=>K9c();
+    $('#sTimeout').disabled = !state.uploaded;
+    $('#sReply').onclick=()=>K9c(false);
+    $('#sTimeout').onclick=()=>K9c(true);
     $('#sAgree').onclick=()=>sellerAgree('k9');
+  } else if(stage==='expired'){
+    setSeller(head + `<p><b>Đã hết hạn 48 giờ phản hồi.</b></p>
+      <p class="priv">Hồ sơ đang ở chỗ nhân viên của sàn. Sàn không tự động hoàn tiền chỉ vì quá hạn; nhân viên sẽ xét dựa trên bằng chứng hiện có.</p>`);
   } else {
     setSeller(head + `<p><b>Bạn đã phản hồi.</b> Ảnh tem: nồi 6L, giỏ chiên 5L.</p>
       <p class="priv">Hồ sơ đang ở chỗ nhân viên của sàn. Chưa có quyết định, chưa trừ tiền. Có kết quả trước 13/11 15:00.</p>`);
@@ -797,22 +922,43 @@ function K9b(){
   sellerK9('wait');
   hint('Bước tiếp theo ở cột Người bán: bấm “Gửi bằng chứng phản hồi”.');
 }
-function K9c(){
-  sellerK9('replied');
-  setRail(4);
-  fillEv('s','Ảnh tem nhà sản xuất: nồi 6L, giỏ chiên 5L<small>gửi 12/11</small>');
+function K9c(isTimeout){
+  sellerK9(isTimeout ? 'expired' : 'replied');
+  if(isTimeout){
+    const s=$('#evS .miss'); if(s) s.textContent='Quá hạn 48 giờ, không phản hồi';
+  } else {
+    fillEv('s','Ảnh tem nhà sản xuất: nồi 6L, giỏ chiên 5L<small>gửi 12/11</small>');
+  }
   state.transferred=true;
-  ai(`Shop đã phản hồi bằng ảnh tem nhà sản xuất: <b>nồi 6L, giỏ chiên 5L</b>.
-    ${conf('no','chưa đủ căn cứ','Hai bên hiểu “6 lít” khác nhau, và mô tả lúc bạn đặt không ghi rõ.')}
-    <div class="act auto">${N(7)}<span class="lvl">Đã tự làm</span>Mình đã chuyển hồ sơ cho nhân viên xử lý khiếu nại. Bạn có kết quả trước 13/11 15:00 và không phải kể lại từ đầu. Hạn khiếu nại được giữ đến khi có kết quả.</div>
-    <div class="act ban">${N(9)}<span class="lvl">Trợ lý không làm</span>Hoàn tiền hay từ chối ở ca này đều làm một bên mất tiền, nên người của sàn quyết.</div>`);
-  staffDecide({
-    why:'Trợ lý chuyển hồ sơ vì độ chắc dưới ngưỡng, mô tả bị sửa sau khi bán, và bằng chứng hai bên mâu thuẫn.',
-    basis:'mô tả lúc đặt ghi “6 lít” mà không nói là của giỏ chiên; người mua có ảnh đo.',
-    refundWhy:'mô tả lúc bạn đặt ghi “6 lít” mà không nói là của giỏ chiên.',
-    rejectWhy:'Tem nhà sản xuất cho thấy giỏ chiên 5 lít đúng thông số.',
-    onBack:()=>{ setRail(2); addEv('b','Ảnh thấy mã model BX-60', true);
-      ai(`Nhân viên cần thêm một thông tin trước khi quyết: ảnh đo ${state.part} có thấy mã model BX-60 trên sản phẩm không? Bạn gửi thêm một ảnh là đủ.`); } });
+  const openK9Staff = () => {
+    setRail(4, isTimeout ? {label:{3:'Shop quá hạn 48 giờ'}} : {});
+    staffDecide({
+      why: isTimeout
+        ? 'Shop không phản hồi trong 48 giờ và mô tả lúc đặt bị sửa sau khi bán. Hồ sơ chuyển nhân viên quyết định; sàn không tự động hoàn.'
+        : 'Trợ lý chuyển hồ sơ vì độ chắc dưới ngưỡng, mô tả bị sửa sau khi bán, và bằng chứng hai bên mâu thuẫn.',
+      basis:'mô tả lúc đặt ghi “6 lít” mà không nói là của giỏ chiên; người mua có ảnh đo.',
+      refundWhy:'mô tả lúc bạn đặt ghi “6 lít” mà không nói là của giỏ chiên.',
+      rejectWhy: isTimeout
+        ? 'Ảnh đo của người mua chưa thể hiện rõ mã sản phẩm hoặc vạch đo dung tích.'
+        : 'Tem nhà sản xuất cho thấy giỏ chiên 5 lít đúng thông số.',
+      onBack:()=>{ setRail(2);
+        askExtraEvidence({
+          prompt:`Nhân viên cần thêm một thông tin trước khi quyết: ảnh đo ${state.part} có thấy mã model BX-60 trên sản phẩm không? Bạn gửi thêm một ảnh là đủ.`,
+          buyerLabel:'📷 Ảnh đo kèm mã model BX-60',
+          evHtml:`Ảnh đo ${state.part} thấy rõ mã model BX-60<small>bổ sung theo yêu cầu</small>`,
+          aiReply:'Đã nhận ảnh mã model BX-60 và chuyển lại cho nhân viên xử lý.',
+          onSubmitted:()=>{ state.transferred=true; openK9Staff(); }
+        }); } });
+  };
+  ai(isTimeout
+    ? `Đã quá 48 giờ mà shop chưa phản hồi.
+      ${conf('lo','thấp','Mô tả lúc đặt ghi “6 lít” còn mơ hồ và shop chưa gửi phản hồi.')}
+      <div class="act auto">${N(7)}<span class="lvl">Đã tự làm</span>Mình đã chuyển hồ sơ cho nhân viên xử lý khiếu nại (không tự động hoàn tiền). Bạn có kết quả trước 13/11 15:00.</div>`
+    : `Shop đã phản hồi bằng ảnh tem nhà sản xuất: <b>nồi 6L, giỏ chiên 5L</b>.
+      ${conf('no','chưa đủ căn cứ','Hai bên hiểu “6 lít” khác nhau, và mô tả lúc bạn đặt không ghi rõ.')}
+      <div class="act auto">${N(7)}<span class="lvl">Đã tự làm</span>Mình đã chuyển hồ sơ cho nhân viên xử lý khiếu nại. Bạn có kết quả trước 13/11 15:00 và không phải kể lại từ đầu. Hạn khiếu nại được giữ đến khi có kết quả.</div>
+      <div class="act ban">${N(9)}<span class="lvl">Trợ lý không làm</span>Hoàn tiền hay từ chối ở ca này đều làm một bên mất tiền, nên người của sàn quyết.</div>`);
+  openK9Staff();
 }
 
 /* ================= KB6: mặc không vừa. Ca bình thường ================= */
@@ -838,9 +984,13 @@ function K6a(k){
     // Áo đúng mô tả: không mở khiếu nại, nên các bước soạn yêu cầu và shop phản hồi không xảy ra
     setRail(state.rail.length, {label:{4:'Không mở khiếu nại: áo đúng mô tả'}, skip:[2,3]});
     setClaim('<b>Người mua xác nhận:</b> đúng size, đúng số đo, không hợp người mặc');
-    ai(`Vậy áo <b>đúng mô tả</b>, nên đây không phải khiếu nại “không đúng mô tả”. Đổi hay trả vì không vừa đi theo chính sách đổi trả của shop, và shop có quyền không nhận.
+    const m = ai(`Vậy áo <b>đúng mô tả</b>, nên đây không phải khiếu nại “không đúng mô tả”. Đổi hay trả vì không vừa đi theo chính sách đổi trả của shop, và shop có quyền không nhận.
       <p>Mình không mở khiếu nại, để shop không bị xử thua khi shop đúng.</p>
-      <div class="btns"><button class="btn line">Xem chính sách đổi trả của shop</button></div>`);
+      <div class="btns"><button class="btn line" id="k6Policy">Xem chính sách đổi trả của shop</button></div>`);
+    onClick(m,'#k6Policy',()=>{
+      buyer('Xem chính sách đổi trả của shop');
+      ai('Chính sách của shop Thời Trang Mộc: không hỗ trợ trả hàng/hoàn tiền với lý do mặc không vừa hoặc đổi ý; chỉ hỗ trợ đổi size trong 3 ngày nếu còn nguyên tem mác và người mua tự trả phí vận chuyển 2 chiều.');
+    });
     return;
   }
   const reason = k==='sai' ? 'gửi sai size, đặt L nhận M' : 'số đo nhỏ hơn mô tả, ngực 96 cm so với 104 cm';
@@ -860,9 +1010,41 @@ function K6a(k){
       <p>Lý do: ${reason}.</p>
       <p class="sq">Mô tả lúc đặt: size L, ngực 104 cm</p>
       <div class="clock">${N(6)}<b class="cd" data-sec="172800"></b><span>để phản hồi</span></div>
-      <div class="btns"><button class="btn sellerb" id="k6Agree">${N(8)}Đồng ý trả hàng hoàn tiền</button><button class="btn line">Phản hồi, không đồng ý</button></div>`);
+      <div class="btns"><button class="btn sellerb" id="k6Agree">${N(8)}Đồng ý trả hàng hoàn tiền</button><button class="btn line" id="k6Dispute">Phản hồi, không đồng ý</button></div>`);
     $('#k6Agree').onclick=()=>sellerAgree('k6');
-    hint('Bước tiếp theo ở cột Người bán: bấm “Đồng ý trả hàng hoàn tiền”.'); });
+    onClick($('#seller'),'#k6Dispute',()=>K6dispute(k, reason));
+    hint('Bước tiếp theo ở cột Người bán: bấm “Đồng ý trả hàng hoàn tiền” hoặc “Phản hồi, không đồng ý”.'); });
+}
+function K6dispute(k, reason){
+  const sellerEv = k==='sai'
+    ? 'Ảnh kiểm tra đơn trước khi đóng gói: áo tem size L<small>gửi 12/11</small>'
+    : 'Ảnh đo mẫu áo size L tại kho: ngực 104 cm<small>gửi 12/11</small>';
+  fillEv('s', sellerEv);
+  setSeller(`<h3>Bạn đã phản hồi không đồng ý</h3><p class="priv">Hồ sơ đã chuyển nhân viên của sàn xem xét. Chưa có quyết định, chưa trừ tiền.</p>`);
+  state.transferred=true;
+  const openK6Staff = () => {
+    setRail(4, {label:{3:'Shop không đồng ý, gửi bằng chứng', 4:'Nhân viên quyết định'}});
+    staffDecide({
+      why:`Shop không đồng ý với lý do "${reason}" và đã gửi ảnh đối chứng trước khi đóng gói.`,
+      basis:`mô tả lúc đặt ghi size L, ngực 104 cm; hai bên có bằng chứng trái ngược.`,
+      refundWhy:`bằng chứng của bạn cho thấy sản phẩm nhận được ${reason}, không khớp mô tả lúc đặt.`,
+      rejectWhy:`Ảnh kiểm tra đóng gói của shop cho thấy hàng gửi đi đúng size L, ngực 104 cm.`,
+      onBack:()=>{
+        setRail(3);
+        askExtraEvidence({
+          prompt:'Nhân viên cần thêm một ảnh: chụp toàn bộ áo kèm mã vận đơn trên gói hàng để đối soát.',
+          buyerLabel:'📷 Ảnh áo kèm mã vận đơn',
+          evHtml:'Ảnh toàn bộ áo kèm mã vận đơn trên gói hàng<small>bổ sung theo yêu cầu</small>',
+          aiReply:'Đã nhận ảnh đối soát và chuyển lại cho nhân viên quyết định.',
+          onSubmitted:()=>{ state.transferred=true; openK6Staff(); }
+        });
+      }
+    });
+  };
+  ai(`Shop đã phản hồi không đồng ý và gửi bằng chứng đối chứng.
+    ${conf('no','chưa đủ căn cứ','Hai bên có ảnh đối chứng khác nhau.')}
+    <div class="act auto">${N(7)}<span class="lvl">Đã tự làm</span>Mình đã chuyển hồ sơ cho nhân viên xử lý khiếu nại quyết định. Bạn có kết quả trong 24 giờ.</div>`);
+  openK6Staff();
 }
 
 /* ---------- G9, G15: người mua sửa lại điều trợ lý hiểu ---------- */
@@ -874,15 +1056,25 @@ function fixFlow(){
       <button class="opt" data-v="khac">Lỗi khác</button>
     </div>`);
   m.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{ lockOpts(m,b); buyer(b.textContent);
-    if(b.dataset.v==='part' && state.sc==='k9'){ state.part = state.part==='giỏ chiên' ? 'lòng nồi ngoài' : 'giỏ chiên';
-      setClaim(`<b>Người mua báo (đã đính chính):</b> đo ${state.part} được 5 lít`); }
-    ai(`Đã sửa hồ sơ${b.dataset.v==='part' && state.sc==='k9' ? `: bạn đo <b>${state.part}</b>` : ''}. Shop và nhân viên thấy bản đã sửa, có ghi “người mua đã đính chính”. Tin đã gửi cho shop thì không thu hồi được; mình đã gửi thêm tin đính chính.`);
+    if(b.dataset.v==='part' && state.sc==='k9'){
+      state.part = state.part==='giỏ chiên' ? 'lòng nồi ngoài' : 'giỏ chiên';
+      setClaim(`<b>Người mua báo (đã đính chính):</b> đo ${state.part} được 5 lít`);
+      ai(`Đã sửa hồ sơ: bạn đo <b>${state.part}</b>. Shop và nhân viên thấy bản đã sửa, có ghi “người mua đã đính chính”. Tin đã gửi cho shop thì không thu hồi được; mình đã gửi thêm tin đính chính.`);
+      return;
+    }
+    state.transferred=true;
+    setClaim('<b>Người mua đính chính:</b> ' + (b.dataset.v==='don' ? 'chọn nhầm đơn hàng' : 'mô tả lỗi khác'));
+    ai('Đã ghi nhận đính chính và chuyển hồ sơ cho nhân viên rà soát lại thông tin đơn hàng trước khi tiếp tục.');
+    setDecide(`<h3>Người mua đính chính thông tin</h3><p>Người mua báo: <b>${b.textContent}</b>. Cần nhân viên xác nhận lại đơn/lỗi trước khi tiếp tục.</p>
+      <div class="btns"><button class="btn line" id="stBackFix">Trả về trợ lý</button></div>`);
+    $('#stBackFix').onclick=()=>{ state.transferred=false; setDecide('<p class="idle">Đã trả về trợ lý.</p>'); ai('Nhân viên đã ghi nhận điều chỉnh và trả lại luồng hỗ trợ để bạn tiếp tục.'); };
   });
 }
 
 /* ---------- G8: "Gặp nhân viên" ở mọi bước ---------- */
 $('#human').onclick=()=>{
   buyer('Gặp nhân viên');
+  if(state.closed){ ai('Hồ sơ này đã có kết quả và đã đóng. Nếu không đồng ý với kết quả, bạn dùng nút <b>Khiếu nại lại kết quả</b> (nếu còn hạn) hoặc mở hỗ trợ cho đơn khác.'); return; }
   if(state.transferred){ ai('Hồ sơ của bạn đã ở chỗ nhân viên. Bạn không cần làm gì thêm; có kết quả mình báo ở đây.'); return; }
   state.transferred=true;
   // Bước đang chờ đổi tên thành "Nhân viên tiếp nhận"; trả về trợ lý thì đặt lại tên cũ
@@ -895,7 +1087,8 @@ $('#human').onclick=()=>{
     <div class="btns"><button class="btn line" id="stBackH">Trả về trợ lý</button></div>`);
   $('#stBackH').onclick=()=>{ state.transferred=false;
     if(state.humanPrev) setRail(state.humanPrev.k, {label:{[state.humanPrev.k]:state.humanPrev.t}});
-    setDecide('<p class="idle">Đã trả về trợ lý.</p>'); };
+    setDecide('<p class="idle">Đã trả về trợ lý.</p>');
+    ai('Nhân viên đã xem và trả hồ sơ về trợ lý. Bạn có thể tiếp tục các bước ở trên.'); };
 };
 
 document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>start(b.dataset.sc));
