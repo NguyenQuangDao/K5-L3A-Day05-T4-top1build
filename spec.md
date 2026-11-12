@@ -5,7 +5,7 @@
 | Họ và Tên        | Mã Học Viên | Việc đã làm                                                             |
 | ---------------- | ----------- | ----------------------------------------------------------------------- |
 | Nguyễn Quang Đạo | 2A202603614 | Phụ trách §1, §2 (Kịch bản rủi ro & Biện luận), §6 (Tiêu chí Pass/Fail) |
-|                  |             |                                                                         |
+| Nguyễn Vũ Thành Long | 2A202603635 | Phụ trách §3 (Khi AI sai: câu thoại, loại lỗi, HAX/PAIR, lỗi không cứu được bằng câu chữ) và ghi chú HAX/PAIR cho §5 |
 |                  |             |                                                                         |
 
 ## §1. Lát cắt & phạm vi
@@ -45,13 +45,74 @@
 
 ## §3. Khi AI sai (chặng 3)
 
-Với mỗi kịch bản đắt nhất:
+Hai kịch bản đắt nhất chọn ở §2: **KB4** (người mua đe dọa kiện / bóc phốt) và **KB5** (hàng tươi sống bị thiu, AI chỉ dẫn gửi trả vật lý).
 
-- AI nói gì (nguyên văn) · người dùng thấy gì · làm gì tiếp · ai được báo, sau bao lâu.
-- Quyết định: hỏi lại / trả lời kèm giới hạn / dừng và chuyển người — chọn cách nào, đã loại cách nào, vì sao.
-- Loại lỗi (hệ thống / người dùng / ngữ cảnh) và vì sao cách nói, cách sửa đi theo loại đó.
-- 2–3 nguyên tắc HAX/PAIR, mỗi cái trỏ vào một chỗ cụ thể (câu chữ hoặc chỗ trên màn hình).
-- Lỗi nào sửa câu chữ không cứu được (nếu có), và thiết kế cứu nó thế nào.
+### 3.1. KB4 — Người mua đe dọa pháp lý / truyền thông
+
+> Tin nhắn: *"Shop lừa đảo, hàng fake 100%, tao sẽ kiện lên công an và đăng bóc phốt khắp mạng xã hội"*
+
+**AI sai thế nào:** trả lời dập khuôn ("Vui lòng gửi ảnh tem mác") làm khách tức hơn, hoặc tự hứa bồi thường / nhận "shop sai" để xoa dịu → câu của AI thành bằng chứng chống lại Shopee và người bán.
+
+**Cách xử lý đã chọn (dừng và chuyển người, trong đúng 1 lượt).** Trong 5 tool của track, ca này chỉ dùng `chuyen_truong_nhom` và `yeu_cau_bang_chung`; AI **không** gọi `soan_hoan_tien`, `tu_choi_khieu_nai`, `phat_shop` (lời doạ không phải căn cứ để hoàn tiền, từ chối hay phạt shop). Đây chính là hard test "khiếu nại kèm lời doạ bóc phốt" của track.
+
+| Hạng mục | Nội dung |
+| :--- | :--- |
+| **AI nói (nguyên văn)** | *"Mình rất tiếc vì trải nghiệm này và hiểu bạn đang rất bức xúc. Mình là trợ lý AI của Shopee nên không thể đánh giá bên nào đúng hay sai, cũng không thể cam kết bồi thường. Việc xử lý sẽ dựa trên bằng chứng của cả hai bên. Mình đã chuyển cuộc trò chuyện này tới chuyên viên chăm sóc khách hàng và gửi kèm tóm tắt, bạn không cần kể lại từ đầu. Trong lúc chờ, bạn có thể gửi thêm ảnh/video bằng chứng ngay tại khung chat này."* |
+| **Người dùng thấy gì** | (1) Bong bóng trả lời trên; (2) thẻ trạng thái cố định "Đã chuyển nhân viên · đang chờ" thay cho ô gợi ý tự động; (3) thẻ "Tóm tắt đã gửi cho nhân viên" gồm mã đơn, sản phẩm, điều bạn phản ánh, bằng chứng đã có, với nút **Sửa tóm tắt**; (4) nút gửi thêm bằng chứng vẫn mở. Không có nút "Gửi yêu cầu hoàn tiền" do AI kích hoạt. |
+| **Người dùng làm tiếp** | Chờ nhân viên, bổ sung bằng chứng, hoặc sửa tóm tắt nếu AI hiểu sai. Không bị khóa khỏi chat. |
+| **Ai được báo, sau bao lâu** | Hàng đợi CSKH ưu tiên: **ngay lập tức** qua tool `chuyen_truong_nhom` (hồ sơ kèm tóm tắt + nhãn "đe dọa pháp lý/truyền thông"; đảo lại được). Trưởng nhóm CSKH/bộ phận pháp lý-PR: cờ cảnh báo **ngay**, xử lý theo quy trình nội bộ. Người bán: chỉ nhận thông báo trung tính "đơn có khiếu nại đang được xử lý" kèm hạn phản hồi (mẫu của `yeu_cau_bang_chung`), **không** gửi nội dung đe dọa hay kết luận, **không** chia sẻ số điện thoại/địa chỉ giữa hai bên. Mục tiêu phản hồi của nhân viên (đề xuất, nhóm giả định): trong 15 phút giờ hành chính; AI báo rõ mốc này, không hứa kết quả. |
+
+**Quyết định: hỏi lại / trả lời kèm giới hạn / dừng và chuyển người → chọn DỪNG VÀ CHUYỂN NGƯỜI.**
+- *Loại "hỏi lại"* ("Bạn có thể gửi ảnh tem mác không?"): khách đang giận, bị hỏi như một thủ tục sẽ thấy bị phớt lờ; nội dung đe dọa vẫn chưa ai có thẩm quyền đọc.
+- *Loại "trả lời kèm giới hạn"* (giải thích chính sách trả hàng rồi nhắc không chắc): mỗi câu AI nói thêm đều có thể bị trích làm bằng chứng; chi phí sai (§2: PR crisis, pháp lý) lớn hơn nhiều chi phí chờ vài phút.
+- *Chọn chuyển người* vì sai ở đây không đảo lại được (ảnh chụp màn hình lan truyền), còn chờ nhân viên chỉ tốn thời gian.
+
+**Loại lỗi: lỗi ngữ cảnh.** Hệ thống chạy đúng thiết kế (xin bằng chứng theo quy trình) nhưng sai với tình huống của người dùng (đang khủng hoảng, có yếu tố pháp lý). Vì vậy cách nói là *nhận cảm xúc + nêu giới hạn + bàn giao*, không xin lỗi nhận sai thay shop; cách sửa là **đổi luồng** (cắt quy trình tự động), không chỉ đổi giọng văn.
+
+**Lỗi sửa câu chữ không cứu được:** AI *không nhận ra* tín hiệu (mỉa mai, ẩn ý, tiếng lóng: "để xem báo đài có thích đăng không nhé") → nó vẫn chạy luồng thường, câu chữ hay đến đâu cũng muộn. **Thiết kế cứu:** (a) nút **"Gặp nhân viên"** luôn hiện ở mọi lượt, không phải đi qua cây lựa chọn; (b) kích hoạt tự động đề nghị chuyển người khi khách lặp lại cùng một phản ánh ≥ 2 lượt hoặc AI hỏi lại 2 lần mà khách chưa đưa ra thông tin mới; (c) thẻ bàn giao có tóm tắt để nhân viên không hỏi lại từ đầu. (Phần lỗi tồn dư này khớp "Residual Risk" ở §6.)
+
+### 3.2. KB5 — Hàng tươi sống / hư hỏng nhanh bị thiu
+
+> Tin nhắn: *"Thịt bò đông lạnh giao đến bị thiu ủng bốc mùi hết rồi"* (đơn có `category == PERISHABLE_FOOD`)
+
+**AI sai thế nào:** chạy `default_return_flow`, bảo đóng gói gửi trả qua bưu tá → hàng thối trong kho vận, phí ship vô nghĩa, người bán nhận lại hàng hỏng, hai bên tranh chấp.
+
+**Cách xử lý đã chọn (trả lời kèm giới hạn + xin bằng chứng, luồng "Hoàn tiền không trả hàng"):**
+
+| Hạng mục | Nội dung |
+| :--- | :--- |
+| **AI nói (nguyên văn)** | *"Rất tiếc về đơn hàng này. Vì đây là hàng thực phẩm tươi sống nên bạn **không cần gửi trả hàng**. Bạn vui lòng giữ nguyên sản phẩm, chụp rõ (1) tình trạng hàng bị hỏng, (2) tem/bao bì có mã đơn hoặc mã vận đơn, (3) hạn sử dụng nếu có. Mình sẽ hướng dẫn bạn gửi yêu cầu **Hoàn tiền không trả hàng** và nhắn người bán phản hồi trong thời hạn quy định. Việc hoàn tiền do Shopee xác nhận dựa trên bằng chứng của cả hai bên, mình chưa thể hứa trước kết quả."* |
+| **Người dùng thấy gì** | Thẻ luồng "Hoàn tiền không trả hàng" kèm dòng lý do "Hàng tươi sống không hoàn trả vật lý"; danh sách 3 thứ cần chụp với ô tải lên; nút **"Đây không phải hàng tươi sống / tôi muốn trả hàng"** để sửa AI (bấm thì chuyển trưởng nhóm duyệt, không tự đổi luồng); **không** có nút in nhãn gửi hàng. |
+| **Người dùng làm tiếp** | Tải ảnh/video hiện trạng → AI chạy kiểm tra chất lượng (xem KB8) → gửi yêu cầu. |
+| **Ai được báo, sau bao lâu** | Người bán: ngay khi người mua gửi yêu cầu, qua `yeu_cau_bang_chung` (mẫu xin phản hồi), có thời hạn phản hồi trước khi sàn quyết (nhóm giả định thời hạn, ghi trong thông báo). Việc hoàn tiền (`soan_hoan_tien`, khó đảo lại) **không** do AI tự thực hiện ở lượt này; mức tự chủ chốt ở §4. Người mua: tin nhắn xác nhận + mốc xử lý. Trưởng nhóm (`chuyen_truong_nhom`) chỉ vào cuộc nếu người bán phản đối hoặc bằng chứng không đạt. |
+
+**Quyết định → chọn TRẢ LỜI KÈM GIỚI HẠN (không hỏi lại, không chuyển người).**
+- *Loại "luồng mặc định gửi trả"*: chính là lỗi cần tránh.
+- *Loại "chuyển người ngay"*: ca này có luồng rõ ràng và dữ liệu danh mục đã biết; chuyển người làm người mua chờ vô ích và nghẽn CSKH.
+- *Loại "hỏi lại có phải hàng tươi sống không"*: dữ liệu `category` đã có, hỏi chỉ thêm ma sát. **Chỉ hỏi lại** khi `category` thiếu hoặc mơ hồ (đồ ăn khô, đóng gói), lúc đó AI hỏi thay vì đoán.
+- *Giới hạn* ("chưa thể hứa kết quả") giữ cho sàn không cam kết thay người bán và không làm tăng gian lận hoàn tiền.
+
+**Loại lỗi: lỗi hệ thống** (chọn sai luồng do thiếu/sai bước rẽ theo danh mục), kèm rủi ro **lỗi ngữ cảnh** nếu danh mục gắn nhầm. Cách nói: giải thích *vì sao* không cần gửi trả (người dùng hiểu đây là quy định, không phải AI từ chối); cách sửa: chặn ở tầng quy trình + cho người dùng sửa lại.
+
+**Lỗi sửa câu chữ không cứu được:** nếu LLM viết sai ("hãy gửi trả cho shop") hoặc `category` gắn nhầm, người mua có thể đã đóng gói gửi hàng thiu đi trước khi câu sửa ở lượt sau kịp tới. **Thiết kế cứu:** bước hướng dẫn đóng gói gửi trả đi qua kiểm tra cứng theo `category` trong mã (không phụ thuộc văn bản LLM), nên với `PERISHABLE_FOOD` bước này không bao giờ được hiển thị; giao diện chỉ có nút của luồng Refund Only (và bảng tool của track không có tool tạo nhãn vận chuyển); nút "Đây không phải hàng tươi sống" cho người mua sửa nhầm danh mục và chuyển người duyệt (khớp Tiêu chí 2, §6).
+
+### 3.3. Nguyên tắc HAX/PAIR (mỗi cái trỏ vào chỗ cụ thể)
+
+| Nguyên tắc | Chỗ cụ thể | KB |
+| :--- | :--- | :---: |
+| **HAX G1 — Cho biết AI làm được gì** + tuân thủ minh bạch dùng AI (Luật AI 134/2025/QH15, Điều 11.1) | Câu "Mình là trợ lý AI của Shopee nên không thể đánh giá đúng/sai, cũng không thể cam kết bồi thường" ở đầu bong bóng | 4 |
+| **HAX G10 — Thu hẹp phạm vi khi không chắc** | Ô gợi ý tự động biến mất, thay bằng thẻ trạng thái "Đã chuyển nhân viên · đang chờ"; AI chỉ còn nhận bằng chứng | 4 |
+| **PAIR — Errors + Graceful Failure** | Nút "Gặp nhân viên" luôn hiện ở mọi lượt + nút "Sửa tóm tắt" trên thẻ bàn giao | 4 |
+| **HAX G11 — Giải thích vì sao** | Dòng "Vì đây là hàng thực phẩm tươi sống nên bạn không cần gửi trả hàng" và chip lý do trên thẻ luồng | 5 |
+| **HAX G2 — Cho biết AI làm tốt đến đâu** | Câu "Mình chưa thể hứa trước kết quả" + hiển thị thang bằng chứng cần có (3 mục chụp ảnh) | 5 |
+| **HAX G8/G9 — Dễ bỏ qua / sửa** | Nút "Đây không phải hàng tươi sống / tôi muốn trả hàng" dưới thẻ luồng | 5 |
+
+### 3.4. Ghi chú HAX/PAIR cho §5 (bàn giao cho TV3 khi gắn ảnh số)
+
+Gợi ý bố cục để ảnh đánh số phủ được các nguyên tắc ở 3.3; TV3 điều chỉnh theo mức tự chủ ở §4:
+
+1. **Màn hình 1 (KB4 — bàn giao):** ① câu thoại có G1 · ② thẻ trạng thái bàn giao (G10) · ③ nút "Gặp nhân viên"/"Sửa tóm tắt" (PAIR Graceful Failure). Mức tự chủ: AI **dừng**, chuyển người.
+2. **Màn hình 2 (KB5 — Refund Only):** ① chip lý do + dòng giải thích (G11) · ② khối "cần chụp 3 thứ", câu giới hạn (G2) · ③ nút sửa "Đây không phải hàng tươi sống" (G8/G9) · ④ **không có** nút in nhãn gửi trả. Mức tự chủ: AI tự hướng dẫn, quyết định hoàn tiền thuộc người/sàn.
 
 ## §4. Mức tự chủ (chặng 4)
 
