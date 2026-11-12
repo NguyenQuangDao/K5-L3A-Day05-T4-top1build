@@ -150,8 +150,8 @@ Số kịch bản dưới đây là số ở §2. Hai kịch bản đắt nhất
 
 | Kịch bản | Cái sai có bị chặn không? | Còn việc nào AI làm khi lẽ ra phải hỏi? | Người dùng bình thường có phải chờ vô ích? |
 |---|---|---|---|
-| **KB4** doạ kiện, nghi hàng giả | Có. AI **dừng và chuyển nhân viên ngay lượt đầu**, không hỏi thêm, không hứa hoàn hay bồi thường; `phat_shop` cấm nên không có nút; shop không thấy lời doạ trong hồ sơ. | Không. AI không hỏi "đơn nào, sai chỗ nào" trước khi chuyển; nhân viên hỏi. | Không áp dụng. Khách được trả lời trong 2 giờ. |
-| **KB5** thịt đông lạnh bị hỏng | Có. Không có nút hay câu nào hướng dẫn gửi trả; AI chuyển sang **hoàn tiền không trả hàng**. Tiền vẫn chỉ đi khi shop đồng ý hoặc nhân viên duyệt. | Không. AI chỉ xin đúng một thứ còn thiếu (video thấy nhãn đơn) rồi mới soạn yêu cầu. | Ít: shop có 12 giờ thay vì 48; shop phản đối thì nhân viên xét trong 6 giờ. |
+| **KB4** doạ kiện, nghi hàng giả | Có. AI **dừng và chuyển nhân viên ngay lượt đầu**, không hỏi thêm, không hứa hoàn hay bồi thường; `phat_shop` cấm nên không có nút; shop không thấy lời doạ trong hồ sơ. | Không. AI không hỏi "đơn nào, sai chỗ nào" trước khi chuyển; nhân viên hỏi. Shop chỉ nhận thông báo trung tính kèm hạn phản hồi (§3.1). | Không áp dụng. Chuyên viên trả lời trong 15 phút giờ hành chính (§3.1). |
+| **KB5** thịt đông lạnh bị hỏng | Có. Không có nút hay câu nào hướng dẫn gửi trả; AI chuyển sang **hoàn tiền không trả hàng**. Tiền vẫn chỉ đi khi shop đồng ý hoặc nhân viên duyệt. | Không. AI xin đúng ba thứ cần chụp (§3.2) rồi mới soạn yêu cầu; người mua cho rằng không phải hàng tươi sống thì AI không tự đổi luồng mà chuyển trưởng nhóm. | Ít: shop có 12 giờ thay vì 48; shop phản đối thì nhân viên xét trong 6 giờ. |
 | **KB6** mặc không vừa | Có. AI hỏi một câu để tách "sai mô tả" khỏi "không hợp người mặc"; trường hợp đúng mô tả thì AI **không mở khiếu nại**, nên shop không bị xử thua khi đúng. | Không. | **Không:** AI soạn sẵn, người mua bấm gửi, shop bấm đồng ý, không qua nhân viên. |
 
 **Luật thêm và tool tách bước:**
@@ -167,7 +167,7 @@ Số kịch bản dưới đây là số ở §2. Hai kịch bản đắt nhất
 ## §5. Prototype (chặng 5)
 
 - **File:** [`prototype/index.html`](prototype/index.html). Mở bằng trình duyệt, không cần cài gì.
-- **Công cụ:** một file HTML/CSS/JS, dựng cùng coding agent.
+- **Công cụ:** một file HTML/CSS/JS. Luồng bấm và câu chữ dựng cùng coding agent (Claude Code); giao diện làm lại bằng Claude Design, giữ nguyên luồng và câu chữ.
 - **Phần nào mock:** mọi câu trả lời của AI đều là kịch bản dựng sẵn; đơn hàng, shop, người mua, giá và chính sách (hạn khiếu nại 7 ngày, hàng tươi sống 24 giờ) đều là dữ liệu dựng. Không có backend, không gửi dữ liệu đi đâu.
 - **Có lời gọi AI thật không:** chưa.
 - **Ba vai trên một màn hình:** Người mua ở trái, Người bán ở phải (có hạn phản hồi, là bonus của track), và **hồ sơ chung** của sàn và nhân viên ở giữa: tiến trình, đối chiếu mô tả, bằng chứng hai bên, ô quyết định.
@@ -184,20 +184,31 @@ Số kịch bản dưới đây là số ở §2. Hai kịch bản đắt nhất
 | Số | Thể hiện gì | Nguyên tắc | Mức tự chủ |
 |---|---|---|---|
 | ① | Nhãn "Trợ lý AI của sàn, không tự quyết hoàn tiền hay từ chối" ở tin đầu | G1 · Luật AI 134/2025 Điều 11 | (lời hứa ở §4) |
-| ② | Đối chiếu mô tả **lúc đặt** với mô tả **hiện tại**; KB9 tô phần shop sửa sau khi bán | G11 · PAIR Explainability + Trust | — |
-| ③ | Thanh độ chắc ba mức (cao / thấp / chưa đủ căn cứ) kèm lý do bằng chữ | G2 | — |
-| ④ | Hỏi đúng một câu có sẵn lựa chọn (KB9 "đo phần nào?", KB6 "đúng size và số đo không?") | G10 | — |
-| ⑤ | Danh sách "còn thiếu đúng một thứ" | G1 · §6 tiêu chí 3 | — |
+| ② | Đối chiếu mô tả **lúc đặt** với mô tả **hiện tại** (KB9 tô phần shop sửa sau khi bán); KB5 chip "Hàng tươi sống không hoàn trả vật lý" | G11 · PAIR Explainability + Trust | — |
+| ③ | Thanh độ chắc ba mức (cao / thấp / chưa đủ căn cứ) kèm lý do; KB5 câu "mình chưa thể hứa trước kết quả" | G2 | — |
+| ④ | KB4: thẻ "Đã chuyển nhân viên, đang chờ" thay cho bước tự động. KB9, KB6: hỏi đúng một câu có sẵn lựa chọn | G10 | — |
+| ⑤ | Danh sách "cần chụp" (KB5: 3 thứ) và "còn thiếu gì" | G2 · §6 tiêu chí 3 | — |
 | ⑥ | "Đã tự làm: báo shop", đồng hồ đếm ngược bên người bán (48 giờ; KB5 12 giờ) | Hai bên cùng được nghe | `yeu_cau_bang_chung`: tự làm |
-| ⑦ | KB4: "dừng ở đây và chuyển ngay", nhân viên trả lời trong 2 giờ; nhân viên có nút "Trả về trợ lý" | PAIR Errors + Graceful failure · §6 tiêu chí 1 | `chuyen_truong_nhom`: tự làm, có hoàn tác |
+| ⑦ | KB4: "Mình đã chuyển cuộc trò chuyện này tới chuyên viên…", trả lời trong 15 phút, kèm thẻ tóm tắt; nhân viên có nút "Trả về trợ lý" | PAIR Errors + Graceful failure · §6 tiêu chí 1 | `chuyen_truong_nhom`: tự làm, có hoàn tác |
 | ⑧ | Hộp xác nhận: ai mất gì, có nhận lại hàng không, "không đảo được", phải tích "đã xem bằng chứng của cả hai bên" | — | `soan_hoan_tien` (bước hoàn): cần duyệt |
 | ⑨ | AI không có nút từ chối hay phạt, không hứa bồi thường; nút phạt chỉ ở bộ phận kiểm tra hàng giả | — | `tu_choi_khieu_nai`, `phat_shop`: cấm |
-| ⑩ | "AI hiểu sai? Sai chỗ nào?" để người mua sửa hồ sơ | G9 · G15 | — |
-| ⑪ | Nút "Gặp nhân viên" luôn có ở mọi bước | G8 | `chuyen_truong_nhom` |
+| ⑩ | Người mua sửa AI: "Sửa tóm tắt" (KB4), "Đây không phải hàng tươi sống / tôi muốn trả hàng" (KB5, chuyển trưởng nhóm, AI không tự đổi luồng), "AI hiểu sai? Sai chỗ nào?" (KB9) | G8 · G9 · G15 | — |
+| ⑪ | Nút "Gặp nhân viên" luôn có ở mọi bước | G8 · PAIR Graceful failure | `chuyen_truong_nhom` |
 | ⑫ | Hạn khiếu nại còn bao lâu (KB5: còn 19 giờ) | Rubric track #8 | — |
 | ⑬ | "Không hiện SĐT/địa chỉ"; KB4 đòi SĐT shop thì từ chối, chỉ sang Chat trong đơn | An toàn của track | — |
 
-*(Khi TV2 chốt 2–3 nguyên tắc HAX/PAIR ở §3, giữ các số tương ứng làm số chính khi demo.)*
+**Khớp với §3.3 (khi demo chỉ vào các số này):**
+
+| Nguyên tắc ở §3.3 | KB4 (ảnh 1) | KB5 (ảnh 2) |
+|---|---|---|
+| G1, Luật AI Điều 11 | ① câu "Mình là trợ lý AI của Shopee…" | ① |
+| G10 | ④ thẻ "Đã chuyển nhân viên, đang chờ" | — |
+| PAIR Graceful failure | ⑪ "Gặp nhân viên", ⑩ "Sửa tóm tắt" | ⑪ |
+| G11 | — | ② chip "Hàng tươi sống không hoàn trả vật lý" |
+| G2 | — | ③ "chưa thể hứa trước kết quả", ⑤ danh sách 3 thứ cần chụp |
+| G8, G9 | — | ⑩ "Đây không phải hàng tươi sống / tôi muốn trả hàng" |
+
+Câu AI nói ở KB4 và KB5 trong prototype lấy **nguyên văn** từ §3.1 và §3.2. Không có nút in nhãn gửi trả ở KB5 (§3.4).
 
 ### Quyết định cách hiện
 
