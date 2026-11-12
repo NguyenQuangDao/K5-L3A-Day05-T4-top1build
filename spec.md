@@ -6,7 +6,7 @@
 | ---------------- | ----------- | ----------------------------------------------------------------------- |
 | Nguyễn Quang Đạo | 2A202603614 | Phụ trách §1, §2 (Kịch bản rủi ro & Biện luận), §6 (Tiêu chí Pass/Fail) |
 | Nguyễn Vũ Thành Long | 2A202603635 | Phụ trách §3 (Khi AI sai: câu thoại, loại lỗi, HAX/PAIR, lỗi không cứu được bằng câu chữ) và ghi chú HAX/PAIR cho §5 |
-|                  |             | Phụ trách §4 (Mức tự chủ), §5 (Prototype `prototype/index.html` và ảnh đánh số), thêm KB9 vào §2 |
+| Nguyễn Gia Bảo | 2A202603647 | Phụ trách §4 (Mức tự chủ), §5 (Prototype `prototype/index.html` và ảnh đánh số), thêm KB9 vào §2 |
 
 ## §1. Lát cắt & phạm vi
 
