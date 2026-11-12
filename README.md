@@ -136,3 +136,4 @@ Tổng **100 điểm + tối đa 8 điểm bonus**. Chi tiết từng ý điểm
 4. Không commit API key; key để biến môi trường.
 5. Prototype có lời gọi AI thật thì chỉ đưa dữ liệu dựng vào — công cụ free tier có thể dùng dữ liệu để huấn luyện.
 6. Tình huống, lời người dùng và chính sách trong bài là **dựng để học**. Khoá học không liên kết với các công ty có sản phẩm được nhắc tới.
+# K5-L3A-Day05-T4-top1build
