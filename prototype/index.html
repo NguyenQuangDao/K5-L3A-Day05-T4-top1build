@@ -123,6 +123,9 @@ body[data-turn="staff"] #decide{box-shadow:0 0 0 3px var(--ink),0 12px 32px rgba
 .rail li.done::after{background:var(--ink)}
 .rail li.now{color:var(--ink);font-weight:700}
 .rail li.now::before{border-color:var(--ink);color:var(--ink);box-shadow:0 0 0 5px rgba(26,29,36,.12)}
+.rail li.skip{color:#9A968D;text-decoration:line-through;text-decoration-color:#B9B5AC}
+.rail li.skip::before{content:"–";border-style:dashed;color:#9A968D}
+.rail li.skip::after{background:repeating-linear-gradient(90deg,#C9C5BC 0 4px,transparent 4px 8px)}
 @media (max-width:640px){
   .rail{grid-template-columns:1fr;gap:10px}
   .rail li{padding:2px 0 0 36px;min-height:26px}
@@ -437,7 +440,16 @@ function setCmp(html){ $('#cmp').innerHTML=html; }
 function setClaim(html){ const c=$('#cmp .claim'); if(c){ c.innerHTML=html; flash(c); } }
 function addEv(side, html, miss){ const li=document.createElement('li'); if(miss) li.className='miss'; li.innerHTML=html; $(side==='b'?'#evB':'#evS').appendChild(li); flash(li); return li; }
 function fillEv(side, html){ const li=$(side==='b'?'#evB .miss':'#evS .miss'); if(li){ li.className=''; li.innerHTML=html; flash(li); } else addEv(side, html); }
-function setRail(i){ state.closed = i>=state.rail.length; state.rail.forEach((_,k)=>{ const li=$('#rail').children[k]; li.className = k<i ? 'done' : k===i ? 'now' : ''; }); }
+/* Thanh tiến trình. i = bước đang chờ (đếm từ 0); i bằng số bước nghĩa là hồ sơ đã xong.
+   skip: các bước không xảy ra ở nhánh này (gạch đi, không đánh dấu xong).
+   label: đổi tên bước theo điều thật sự xảy ra, ví dụ "Shop đồng ý, đã hoàn tiền". */
+function setRail(i, {skip=[], label={}}={}){
+  const lis=$('#rail').children;
+  Object.entries(label).forEach(([k,t])=>{ lis[k].textContent=t; });
+  state.closed = i>=state.rail.length;
+  state.rail.forEach((_,k)=>{ lis[k].className = skip.includes(k) ? 'skip' : k<i ? 'done' : k===i ? 'now' : ''; });
+}
+const railNow = () => [...$('#rail').children].findIndex(li=>li.className==='now');
 function onClick(root, sel, fn){ const el=root.querySelector(sel); el.onclick=e=>{ el.disabled=true; fn(e); }; return el; }
 
 function startTimers(){
@@ -472,15 +484,18 @@ const CASES = {
   k5:{ shop:'Bếp Nhà Quê (dựng)', title:'Đơn DH-2611-1103, thịt bò Úc đông lạnh, hàng tươi sống', price:'389.000đ',
        order:'<b>Đơn DH-2611-1103</b><br>Thịt bò Úc đông lạnh 1kg, 389.000đ<br>Đặt 11/11, nhận hôm nay 10:00',
        deadline:'13/11 10:00', dl:'hàng tươi sống: hạn khiếu nại <b>13/11 10:00</b>, còn 19 giờ',
-       rail:['Người mua báo lỗi','Chuyển sang hoàn tiền không trả hàng','Người mua gửi ảnh, video','Shop phản hồi trong 12 giờ','Hoàn tiền hoặc nhân viên quyết'] },
+       rail:['Người mua báo lỗi','Chuyển sang hoàn tiền không trả hàng','Người mua gửi ảnh, video','Shop phản hồi trong 12 giờ','Hoàn tiền hoặc nhân viên quyết'],
+       endSeller:{label:{3:'Shop đồng ý', 4:'Đã hoàn tiền, không trả hàng'}} },
   k9:{ shop:'Gia Dụng An Phú (dựng)', title:'Đơn DH-2611-0457, nồi chiên không dầu BX-60', price:'1.290.000đ',
        order:'<b>Đơn DH-2611-0457</b><br>Nồi chiên không dầu BX-60, 1.290.000đ<br>Đặt 03/11, nhận 08/11',
        deadline:'15/11', dl:'hạn khiếu nại <b>15/11</b>, còn 3 ngày',
-       rail:['Người mua báo lỗi','Hỏi lại một câu','Xin bằng chứng hai bên','Shop phản hồi','Nhân viên quyết định'] },
+       rail:['Người mua báo lỗi','Hỏi lại một câu','Xin bằng chứng hai bên','Shop phản hồi','Nhân viên quyết định'],
+       endSeller:{label:{3:'Shop đồng ý hoàn tiền', 4:'Không cần nhân viên quyết'}, skip:[4]} },
   k6:{ shop:'Thời Trang Mộc (dựng)', title:'Đơn DH-2611-0912, áo sơ mi linen', price:'249.000đ',
        order:'<b>Đơn DH-2611-0912</b><br>Áo sơ mi linen size L, 249.000đ<br>Đặt 07/11, nhận 10/11',
        deadline:'17/11', dl:'hạn khiếu nại <b>17/11</b>, còn 5 ngày',
-       rail:['Người mua báo lỗi','Hỏi lại một câu','AI soạn yêu cầu','Shop phản hồi','Hoàn tiền'] }
+       rail:['Người mua báo lỗi','Hỏi lại một câu','AI soạn yêu cầu','Shop phản hồi','Hoàn tiền'],
+       endSeller:{label:{3:'Shop đồng ý', 4:'Hoàn tiền sau khi nhận lại hàng'}} }
 };
 
 function start(sc){
@@ -506,7 +521,8 @@ function sellerAgree(sc, {noReturn}={}){
     body:`<p class="loss"><b>Bạn mất ${c.price}</b>${noReturn ? ' và không nhận lại hàng (hàng tươi sống, không gửi trả).' : ', nhận lại hàng khi người mua gửi trả.'}</p><p>Bạn là bên mất tiền, nên bạn duyệt được ngay mà không cần chờ nhân viên.</p><p><b>Không đảo được</b> sau khi bạn đồng ý.</p>`,
     check:'Tôi đồng ý hoàn tiền cho đơn này', go:'Đồng ý hoàn tiền', cls:'go',
     onGo:()=>{
-      setRail(state.rail.length);
+      // Shop là bên mất tiền đã đồng ý: bước cuối ghi đúng điều đó; bước nhân viên (nếu có) không xảy ra
+      setRail(state.rail.length, c.endSeller || {});
       setSeller(`<h3>Bạn đã đồng ý hoàn ${c.price}</h3><p class="priv">Người mua đã được báo. Không trừ điểm uy tín.</p>`);
       setDecide(`<p><b>Shop đã đồng ý hoàn tiền.</b> Không cần nhân viên duyệt vì bên mất tiền đã đồng ý.</p>`);
       ai(noReturn
@@ -538,8 +554,8 @@ function staffDecide(o){
   $('#stBack').onclick=()=>{ state.transferred=false; setDecide('<p class="idle">Đã trả về trợ lý để xin thêm một bằng chứng.</p>'); o.onBack(); };
 }
 function staffDone(kind,o){
-  const c=CASES[state.sc];
-  setRail(state.rail.length);
+  const c=CASES[state.sc], last=state.rail.length-1;
+  setRail(state.rail.length, {label:{[last]: (o.who||'Nhân viên') + (kind==='refund' ? ' duyệt hoàn tiền' : ' từ chối khiếu nại')}});
   if(kind==='refund'){
     setDecide(`<p><b>Đã duyệt hoàn tiền.</b> ${STAFF} quyết định; người mua và shop đã được báo.</p>`);
     ai(`<b>${STAFF} đã quyết định hoàn ${c.price} cho bạn.</b> Lý do: ${o.refundWhy}${o.noReturn ? ' Bạn không cần gửi trả hàng.' : '<div class="btns"><button class="btn buyerb">Xem cách gửi trả hàng</button></div>'}`);
@@ -593,12 +609,24 @@ function startK4(){
     <div class="btns"><button class="btn dark" id="k4Fake">Chuyển bộ phận kiểm tra hàng giả</button><button class="btn line" id="k4Back">Trả về trợ lý</button></div>
     <p class="banline">${N(9)}Xử phạt shop chỉ có trong công cụ của bộ phận kiểm tra hàng giả. Trợ lý AI không có nút hoàn tiền, từ chối hay phạt ở ca này.</p>`);
   $('#k4Fake').onclick=()=>{
-    setRail(3);
-    setDecide(`<h3>Đã chuyển bộ phận kiểm tra hàng giả</h3><p>Kết quả trong 3 ngày làm việc. Yêu cầu trả hàng của người mua chạy song song.</p>`);
+    setRail(3, {label:{3:'Bộ phận hàng giả xét bằng chứng', 4:'Bộ phận hàng giả kết luận'}});
+    setDecide(`<h3>Đã chuyển bộ phận kiểm tra hàng giả</h3><p>Kết quả trong 3 ngày làm việc. Yêu cầu trả hàng của người mua chạy song song.</p>
+      <div class="btns"><button class="btn dark" id="k4Result">Xem kết luận (mô phỏng 3 ngày sau)</button></div>`);
     ai(`<b>${STAFF}:</b> mình đã xem hồ sơ và chuyển cho bộ phận kiểm tra hàng giả; kết quả trong 3 ngày làm việc. Yêu cầu trả hàng của bạn vẫn chạy song song, hạn khiếu nại được giữ.`);
     sellerK4('check');
+    onClick($('#decide'),'#k4Result',()=>{
+      setRail(4);
+      staffDecide({ sec:86400, who:'Bộ phận hàng giả',
+        why:`Bộ phận kiểm tra hàng giả đã xem ${state.k4Doc ? 'hoá đơn nhập hàng của shop' : 'hồ sơ (shop chưa gửi chứng từ)'} và ảnh tem của người mua: tem không quét được mã.`,
+        basis:'mô tả lúc đặt ghi “hàng chính hãng, có tem chống giả”; tem trên hàng nhận được không quét được mã.',
+        refundWhy:'mô tả lúc đặt ghi hàng chính hãng có tem chống giả, nhưng tem trên hàng bạn nhận không quét được mã.',
+        rejectWhy:'Hoá đơn nhập hàng cho thấy hàng có nguồn gốc từ nhà phân phối chính hãng.',
+        onBack:()=>{ setRail(3); ai('Bộ phận kiểm tra hàng giả cần thêm một thông tin: ảnh số seri trên vỏ tai nghe. Bạn gửi thêm một ảnh là đủ.'); } });
+    });
   };
-  $('#k4Back').onclick=()=>{ state.transferred=false; setRail(1);
+  // Nhân viên đã liên hệ và trả về luồng thường: các bước trước vẫn là đã xảy ra, không lùi lại
+  $('#k4Back').onclick=()=>{ state.transferred=false;
+    setRail(3, {label:{2:'Nhân viên xem, trả về luồng thường'}});
     setDecide('<p class="idle">Nhân viên đã trả hồ sơ về luồng thường.</p>');
     ai('Nhân viên đã xem và trả hồ sơ về luồng thường. Mình gửi mẫu xin bằng chứng cho bạn và cho shop ngay bây giờ.'); };
 }
@@ -628,7 +656,7 @@ function startK5(){
   addEv('b','Ảnh hiện trạng, tem có mã đơn, hạn sử dụng', true);
   addEv('s','Chưa được báo: chờ người mua gửi yêu cầu', true);
   buyer('Sản phẩm là thịt bò đông lạnh giao đến nơi bị thiu ủng bốc mùi hết rồi');
-  setRail(1);
+  setRail(2); // AI đã chuyển sang hoàn tiền không trả hàng ngay trong câu trả lời đầu; giờ chờ người mua gửi ảnh
   const m = ai(`Rất tiếc về đơn hàng này. Vì đây là hàng thực phẩm tươi sống nên bạn <b>không cần gửi trả hàng</b>. Bạn vui lòng giữ nguyên sản phẩm, chụp rõ (1) tình trạng hàng bị hỏng, (2) tem/bao bì có mã đơn hoặc mã vận đơn, (3) hạn sử dụng nếu có. Mình sẽ hướng dẫn bạn gửi yêu cầu <b>Hoàn tiền không trả hàng</b> và nhắn người bán phản hồi trong thời hạn quy định. Việc hoàn tiền do Shopee xác nhận dựa trên bằng chứng của cả hai bên, mình chưa thể hứa trước kết quả.
     <div class="flow"><b>Hoàn tiền không trả hàng</b><span class="chip">${N(2)}Hàng tươi sống không hoàn trả vật lý</span></div>
     ${conf('lo','thấp','Chưa có ảnh hiện trạng, nên chưa biết hàng hỏng lúc giao hay sau khi nhận.')}
@@ -647,13 +675,17 @@ function startK5(){
 function K5notFresh(){
   buyer('Đây không phải hàng tươi sống / tôi muốn trả hàng');
   state.transferred=true;
+  setRail(1, {label:{1:'Trưởng nhóm xem lại loại hàng'}});
   ai(`<div class="act auto">${N(7)}<span class="lvl">Đã chuyển trưởng nhóm</span>Mình không tự đổi luồng. Trưởng nhóm sẽ xem lại loại hàng của đơn này và trả lời bạn trong 2 giờ.</div>`);
   setDecide(`<h3>Người mua cho rằng không phải hàng tươi sống</h3>
     <p>Danh mục của đơn: thực phẩm tươi sống. Người mua muốn trả hàng thay vì hoàn tiền không trả hàng. Trợ lý không tự đổi luồng.</p>
     <div class="btns"><button class="btn dark" id="k5Keep">Giữ luồng hoàn tiền không trả hàng</button><button class="btn line" id="k5Ret">Chuyển sang trả hàng</button></div>`);
-  $('#k5Keep').onclick=()=>{ state.transferred=false; setDecide('<p class="idle">Trưởng nhóm giữ luồng hoàn tiền không trả hàng.</p>');
+  $('#k5Keep').onclick=()=>{ state.transferred=false; setRail(2, {label:{1:'Trưởng nhóm giữ hoàn tiền không trả hàng'}});
+    setDecide('<p class="idle">Trưởng nhóm giữ luồng hoàn tiền không trả hàng.</p>');
     ai(`<b>${STAFF}:</b> đơn này đúng là hàng tươi sống, nên vẫn đi luồng hoàn tiền không trả hàng. Bạn tải ảnh lên như hướng dẫn ở trên.`); };
-  $('#k5Ret').onclick=()=>{ setDecide('<p class="idle">Trưởng nhóm đã sửa danh mục đơn và chuyển sang luồng trả hàng.</p>');
+  $('#k5Ret').onclick=()=>{ state.transferred=false;
+    setRail(state.rail.length, {label:{1:'Trưởng nhóm chuyển sang trả hàng thường'}, skip:[2,3,4]});
+    setDecide('<p class="idle">Trưởng nhóm đã sửa danh mục đơn và chuyển sang luồng trả hàng.</p>');
     ai(`<b>${STAFF}:</b> mình đã sửa danh mục của đơn và chuyển sang luồng trả hàng thường.`); };
 }
 function K5b(){
@@ -688,7 +720,7 @@ function K5dispute(){
   fillEv('s','Ảnh đóng gói lúc giao 06:40: thùng xốp, 2 túi đá khô<small>gửi 12/11</small>');
   setSeller(`<h3>Bạn đã phản đối và gửi bằng chứng</h3><p class="priv">Hồ sơ đang ở chỗ trưởng nhóm. Chưa có quyết định, chưa trừ tiền. Có kết quả trước 12/11 21:00.</p>`);
   state.transferred=true;
-  setRail(4);
+  setRail(4, {label:{3:'Shop phản đối, gửi bằng chứng', 4:'Nhân viên quyết định'}});
   ai(`Shop phản đối và gửi ảnh đóng gói lúc giao: thùng xốp và 2 túi đá khô.
     ${conf('no','chưa đủ căn cứ','Hai bên có bằng chứng khác nhau về lúc giao và lúc nhận.')}
     <div class="act auto">${N(7)}<span class="lvl">Đã tự làm</span>Mình đã chuyển trưởng nhóm. Hàng tươi sống nên được xét trong 6 giờ, trước 12/11 21:00.</div>`);
@@ -760,6 +792,7 @@ function K9b(){
   state.uploaded=true;
   buyer('📷 Ảnh đo dung tích');
   fillEv('b',`Ảnh đổ nước đo ${state.part}: 5 lít<small>gửi 12/11</small>`);
+  setRail(3); // người mua đã gửi đủ; giờ chờ shop phản hồi
   ai(`Đã nhận ảnh. Hồ sơ của bạn đủ rồi; đang chờ shop phản hồi, hạn 14/11 15:00. Có kết quả mình báo ở đây. Hạn khiếu nại của bạn được giữ trong lúc chờ.`);
   sellerK9('wait');
   hint('Bước tiếp theo ở cột Người bán: bấm “Gửi bằng chứng phản hồi”.');
@@ -802,7 +835,8 @@ function startK6(){
 }
 function K6a(k){
   if(k==='vua'){
-    setRail(4);
+    // Áo đúng mô tả: không mở khiếu nại, nên các bước soạn yêu cầu và shop phản hồi không xảy ra
+    setRail(state.rail.length, {label:{4:'Không mở khiếu nại: áo đúng mô tả'}, skip:[2,3]});
     setClaim('<b>Người mua xác nhận:</b> đúng size, đúng số đo, không hợp người mặc');
     ai(`Vậy áo <b>đúng mô tả</b>, nên đây không phải khiếu nại “không đúng mô tả”. Đổi hay trả vì không vừa đi theo chính sách đổi trả của shop, và shop có quyền không nhận.
       <p>Mình không mở khiếu nại, để shop không bị xử thua khi shop đúng.</p>
@@ -851,12 +885,17 @@ $('#human').onclick=()=>{
   buyer('Gặp nhân viên');
   if(state.transferred){ ai('Hồ sơ của bạn đã ở chỗ nhân viên. Bạn không cần làm gì thêm; có kết quả mình báo ở đây.'); return; }
   state.transferred=true;
+  // Bước đang chờ đổi tên thành "Nhân viên tiếp nhận"; trả về trợ lý thì đặt lại tên cũ
+  const k=railNow(); state.humanPrev = k>=0 ? {k, t:$('#rail').children[k].textContent} : null;
+  if(state.humanPrev) setRail(k, {label:{[k]:'Nhân viên tiếp nhận'}});
   ai(`<div class="act auto">${N(7)}<span class="lvl">Đã tự làm</span>Đã chuyển nhân viên, chờ khoảng 2 giờ. Toàn bộ tin nhắn và bằng chứng đã gửi kèm; bạn không phải kể lại.</div>`);
   setDecide(`<h3>Người mua yêu cầu gặp nhân viên</h3>
     <p>Trợ lý đã gửi kèm toàn bộ hội thoại và bằng chứng hiện có.</p>
     <p class="due">Hạn trả lời còn <b class="cd" data-sec="7200"></b></p>
     <div class="btns"><button class="btn line" id="stBackH">Trả về trợ lý</button></div>`);
-  $('#stBackH').onclick=()=>{ state.transferred=false; setDecide('<p class="idle">Đã trả về trợ lý.</p>'); };
+  $('#stBackH').onclick=()=>{ state.transferred=false;
+    if(state.humanPrev) setRail(state.humanPrev.k, {label:{[state.humanPrev.k]:state.humanPrev.t}});
+    setDecide('<p class="idle">Đã trả về trợ lý.</p>'); };
 };
 
 document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>start(b.dataset.sc));
